@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>AI Security Vendor Map</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Malgun Gothic','Pretendard',sans-serif}
+body{background:#0F1419;color:#E6EAF0;padding:32px 28px;min-height:100vh}
+.container{max-width:1480px;margin:0 auto}
+.loading{color:#FF6B35;text-align:center;padding:50px;font-size:14px;font-family:monospace}
+.hero{display:flex;align-items:center;justify-content:space-between;padding:28px 0 36px;border-bottom:1px solid #1F2937;margin-bottom:32px}
+.hero h1{font-size:32px;font-weight:800;color:#FAFBFC;margin-bottom:6px;letter-spacing:-.5px}
+.hero h1 .accent{color:#FF6B35}
+.hero p{font-size:13px;color:#7A8499;font-family:monospace}
+.badge{display:inline-block;padding:4px 12px;background:#1A2330;border:1px solid #2A3548;border-radius:4px;font-size:11px;font-family:monospace;color:#7A8499;letter-spacing:1px;text-transform:uppercase}
+.sec-header{display:flex;align-items:center;gap:14px;margin:40px 0 18px}
+.sec-header .num{font-family:monospace;font-size:13px;color:#FF6B35;font-weight:700;letter-spacing:1px}
+.sec-header .title{font-size:18px;font-weight:700;color:#FAFBFC}
+.sec-header .sub{font-size:12px;color:#5A6478;font-family:monospace;margin-left:auto}
+.divider{height:1px;background:linear-gradient(90deg,#1F2937 0%,transparent 100%);margin-bottom:18px}
+.control-panel,.panel,.rationale-wrap,.heatmap-wrap,.explorer-wrap,.layer-cluster-wrap,.ext-cap-wrap,.layer-glossary{background:#161B22;border:1px solid #1F2937;border-radius:8px;padding:24px;margin-bottom:24px}
+.control-row{display:flex;align-items:center;gap:14px;margin-bottom:18px}
+.control-label{font-family:monospace;font-size:11px;color:#7A8499;text-transform:uppercase;letter-spacing:1px}
+.reset-btn{background:transparent;border:1px solid #FF6B35;color:#FF6B35;padding:7px 16px;border-radius:4px;font-size:11px;cursor:pointer;font-weight:600;font-family:monospace;text-transform:uppercase}
+.reset-btn:hover{background:#FF6B35;color:#0F1419}
+.vendor-chips{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:8px}
+.vendor-chip{display:flex;align-items:center;padding:10px 14px;background:#0F1419;border:1px solid #2A3548;border-radius:4px;cursor:pointer}
+.vendor-chip:hover,.vendor-chip.selected{border-color:#FF6B35}
+.vendor-chip.selected{background:#1A2330}
+.dot,.winner-dot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:10px}
+.vendor-chip .name{font-size:12px;font-weight:600;color:#7A8499}
+.vendor-chip.selected .name{color:#FAFBFC}
+.best-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px}
+.best-card{background:#161B22;border:1px solid #1F2937;border-radius:6px;padding:18px;position:relative}
+.best-card:before{content:'';position:absolute;top:0;left:0;width:3px;height:100%;background:#FF6B35}
+.best-card .label{font-family:monospace;font-size:9px;color:#5A6478;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px}
+.best-card .layer-name{font-size:14px;font-weight:800;color:#FAFBFC;margin-bottom:14px}
+.best-card .winner{display:flex;align-items:center;gap:8px}
+.best-card .winner-name{font-size:14px;font-weight:700;color:#FAFBFC}
+.score-line{display:flex;align-items:baseline;gap:6px;margin-top:8px}
+.score-big{font-size:24px;font-weight:800;color:#FF6B35;font-family:monospace}
+.score-max{font-size:11px;color:#5A6478;font-family:monospace}
+.insights{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:32px}
+.insight-card{background:#161B22;border:1px solid #1F2937;border-radius:6px;padding:20px}
+.insight-card h4{font-family:monospace;font-size:10px;color:#5A6478;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px}
+.num-big{font-size:28px;font-weight:800;color:#FAFBFC;margin-bottom:4px}
+.num-big.accent{color:#FF6B35}
+.insight-card p{font-size:12px;color:#7A8499}
+.main-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:16px;margin-bottom:24px}
+.panel-title{font-size:12px;font-weight:700;color:#5A6478;font-family:monospace;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:18px}
+.radar-box{position:relative;height:460px}
+.score-table,.heatmap-table{width:100%;border-collapse:collapse}
+.score-table th,.heatmap-table th{padding:10px 8px;text-align:left;font-family:monospace;font-size:10px;color:#5A6478;letter-spacing:1px;text-transform:uppercase;border-bottom:1px solid #1F2937}
+.score-table th:not(:first-child),.score-table td:not(:first-child),.heatmap-table th:not(:first-child),.heatmap-table td:not(:first-child){text-align:center}
+.score-table td{padding:12px 8px;border-bottom:1px solid #1A2330;font-size:13px;color:#E6EAF0}
+.v-cell{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.v-name{font-weight:700}
+.total-cell{font-family:monospace;font-weight:800;color:#FF6B35}
+.mini-score,.cell-score,.lr-score-box{display:inline-flex;align-items:center;justify-content:center;border-radius:4px;font-weight:800;color:white;font-family:monospace}
+.mini-score{width:28px;height:28px;font-size:11px}
+.cell-score{height:42px;font-size:13px}
+.lr-score-box{width:38px;height:34px;font-size:14px}
+.s-5{background:#FF6B35}.s-4{background:#E07A4D}.s-3{background:#A88060}.s-2{background:#6B6878}.s-1{background:#3D4554}.s-0{background:#252B36;color:#5A6478}
+.rank-tag{display:inline-block;padding:1px 6px;border-radius:3px;font-size:9px;font-weight:800;margin-left:6px;font-family:monospace}
+.rank-1{background:#FF6B35;color:#0F1419}.rank-2{background:#7A8499;color:#0F1419}.rank-3{background:#A07050;color:#FAFBFC}
+.cap-badges{display:flex;flex-wrap:wrap;gap:6px;margin-left:8px;align-items:center}
+.cap-badge{display:inline-flex;align-items:center;gap:4px;padding:4px 10px;background:rgba(34,211,238,.12);border:1px solid #22D3EE;border-radius:12px;font-size:11px;color:#67E8F9;font-weight:700;white-space:nowrap}
+.cap-badge:before{content:'+';font-size:13px;font-weight:800;color:#22D3EE}
+.rationale-wrap{overflow-x:auto}
+.single-vendor{background:#0F1419;border:1px solid #1F2937;border-left:3px solid #FF6B35;border-radius:6px;padding:24px;margin-bottom:18px}
+.vh,.vh-row{display:flex;align-items:center;gap:12px;margin-bottom:6px}
+.vn{font-size:18px;font-weight:800;color:#FAFBFC}
+.total-pill{margin-left:auto;padding:4px 10px;background:#1A2330;border:1px solid #2A3548;border-radius:4px;font-family:monospace;font-size:11px;color:#FF6B35;font-weight:700}
+.vh-tag{font-size:11px;color:#7A8499;font-family:monospace;margin-bottom:10px}
+.layer-rows{display:flex;flex-direction:column;gap:8px}
+.layer-row{display:grid;grid-template-columns:110px 60px 1fr;gap:14px;align-items:flex-start;padding:14px;background:#161B22;border:1px solid #1F2937;border-radius:5px}
+.layer-row.ext{border-left:3px solid #22D3EE}
+.lr-name{display:flex;align-items:center;gap:8px;padding-top:2px}
+.lr-bar{width:3px;height:14px;background:#FF6B35;border-radius:2px}
+.lr-text{font-size:13px;font-weight:700;color:#FAFBFC}
+.lr-bullets,.bullets-mini{font-size:12px;color:#B8C2D1;line-height:1.7}
+.lr-bullets ul,.bullets-mini ul{list-style:none;padding:0}
+.lr-bullets li,.bullets-mini li{padding-left:14px;position:relative;margin-bottom:4px}
+.lr-bullets li strong,.bullets-mini li strong{color:#FAFBFC}
+li.pos:before{content:'+';position:absolute;left:0;color:#4ADE80;font-weight:800}
+li.neg:before{content:'-';position:absolute;left:0;color:#F87171;font-weight:800}
+li.neu:before{content:'.';position:absolute;left:0;color:#7A8499;font-weight:800}
+.matrix-grid{display:grid;gap:10px;min-width:900px}
+.matrix-header-cell{font-family:monospace;font-size:10px;color:#5A6478;letter-spacing:1.5px;text-transform:uppercase;padding:10px 12px}
+.matrix-vendor-header,.vendor-cell,.layer-label-cell{background:#0F1419;border:1px solid #1F2937;border-radius:6px;padding:14px}
+.matrix-vendor-header{border-top:3px solid #FF6B35}
+.vendor-cell{display:flex;flex-direction:column;gap:10px}
+.score-display{display:flex;align-items:center;justify-content:space-between;padding-bottom:8px;border-bottom:1px solid #1F2937}
+.vendor-mini{display:flex;align-items:center;gap:6px}
+.dot-mini,.dot-tiny,.ecc-dot,.mc-dot{display:inline-block;border-radius:50%}
+.dot-mini{width:8px;height:8px}.dot-tiny,.ecc-dot,.mc-dot{width:7px;height:7px}
+.vn-mini{font-size:11px;font-weight:600;color:#7A8499;font-family:monospace}
+.layer-label-cell{border-left:3px solid #FF6B35;display:flex;flex-direction:column;justify-content:center}
+.layer-label-cell.ext{border-left-color:#22D3EE}
+.ll-name{font-size:14px;font-weight:800;color:#FAFBFC;margin-bottom:4px}
+.layer-label-cell.ext .ll-name{color:#67E8F9}
+.ll-sub{font-size:10.5px;color:#5A6478;font-family:monospace}
+.ext-section-divider{padding:14px 0 4px}
+.ext-banner{display:flex;align-items:center;gap:10px;padding:10px 14px;background:rgba(34,211,238,.08);border:1px solid rgba(34,211,238,.3);border-radius:6px}
+.ext-label{font-family:monospace;font-size:11px;color:#67E8F9;font-weight:700;letter-spacing:1.5px;text-transform:uppercase}
+.ext-desc{font-size:11.5px;color:#B8C2D1;font-family:monospace}
+.summary-block{margin-top:24px;padding:24px;background:linear-gradient(135deg,#1A1F2E 0%,#0F1419 100%);border:1px solid #FF6B35;border-radius:6px}
+.summary-block h4{font-size:11px;font-family:monospace;color:#FF6B35;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.summary-block .line{font-size:13px;color:#E6EAF0;line-height:1.9}
+.summary-block strong{color:#FF6B35}
+.heatmap-wrap{overflow-x:auto}
+.heatmap-table{border-collapse:separate;border-spacing:2px;min-width:1100px}
+.layer-td{vertical-align:middle;text-align:left!important;padding:12px 16px;color:#FAFBFC;font-weight:700;font-size:13px;border-right:2px solid #FF6B35}
+.domain-td{text-align:left!important;padding:14px 12px;color:#FAFBFC;font-weight:600;font-size:12.5px}
+.domain-desc{text-align:left!important;padding:14px;color:#7A8499;font-size:11.5px;line-height:1.5}
+.legend-bar{display:flex;gap:14px;justify-content:center;margin-top:18px;padding-top:18px;border-top:1px solid #1F2937;flex-wrap:wrap}
+.legend-item{display:flex;align-items:center;gap:6px;font-size:11px;color:#7A8499;font-family:monospace}
+.legend-color{width:14px;height:14px;border-radius:3px}
+.cluster-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-bottom:24px}
+.cluster-card{background:#161B22;border:1px solid #1F2937;border-radius:8px;padding:20px;border-top:3px solid #FF6B35}
+.cluster-name{font-size:16px;font-weight:800;color:#FAFBFC;margin-bottom:6px}
+.cluster-trait{font-size:11.5px;color:#7A8499;font-family:monospace;margin-bottom:14px;line-height:1.5}
+.pattern-bars{display:flex;gap:6px;margin-bottom:14px;padding:10px;background:#0F1419;border-radius:6px}
+.pattern-bar{flex:1;text-align:center}
+.pb-label{font-size:9px;color:#5A6478;font-family:monospace;margin-bottom:4px;text-transform:uppercase}
+.pb-fill{height:50px;background:#1F2937;border-radius:3px;position:relative;overflow:hidden}
+.pb-inner{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,#FF6B35,#E07A4D);border-radius:3px}
+.pb-score{font-size:11px;color:#FF6B35;font-family:monospace;font-weight:800;margin-top:4px}
+.member-list,.lc-members,.ecc-vendors{display:flex;flex-wrap:wrap;gap:6px}
+.member-chip,.lc-member,.ecc-vendor-chip{display:flex;align-items:center;gap:6px;padding:5px 9px;background:#0F1419;border:1px solid #2A3548;border-radius:4px;font-size:11px;color:#FAFBFC;font-weight:600}
+.explorer-controls{display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.explorer-controls .label{font-family:monospace;font-size:11px;color:#7A8499;letter-spacing:1px;text-transform:uppercase;margin-right:6px}
+.vendor-select-chip{padding:6px 12px;background:#0F1419;border:1px solid #2A3548;border-radius:4px;font-size:11px;color:#7A8499;cursor:pointer;font-weight:600}
+.vendor-select-chip:hover,.vendor-select-chip.active{border-color:#FF6B35;color:#FAFBFC}
+.vendor-select-chip.active{background:#FF6B35;color:#0F1419}
+.similar-list{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.similar-card{background:#0F1419;border:1px solid #1F2937;border-radius:6px;padding:16px;position:relative}
+.sim-rank{position:absolute;top:10px;right:10px;font-family:monospace;font-size:9px;color:#FF6B35;font-weight:800;letter-spacing:1px}
+.sim-header{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.sim-percent{font-family:monospace;font-size:22px;font-weight:800;color:#FF6B35;margin-bottom:12px}
+.sim-mini-bars{display:flex;gap:4px;margin-bottom:24px}
+.smb{flex:1;height:30px;background:#1F2937;border-radius:2px;position:relative}
+.smb-fill{position:absolute;bottom:0;left:0;right:0;background:#FF6B35;border-radius:2px}
+.smb-label{position:absolute;bottom:-16px;left:0;right:0;text-align:center;font-size:8px;color:#5A6478;font-family:monospace}
+.sim-note{font-size:11px;color:#7A8499;line-height:1.6;padding-top:10px;border-top:1px solid #1F2937}
+.sim-note strong{color:#FAFBFC}
+.layer-cluster-row{padding:16px 0;border-bottom:1px solid #1F2937}
+.layer-cluster-row:last-child{border-bottom:none}
+.lc-header{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+.lc-bar{width:4px;height:18px;background:#FF6B35;border-radius:2px}
+.lc-name{font-size:14px;font-weight:800;color:#FAFBFC}
+.lc-desc{font-size:11px;color:#7A8499;font-family:monospace;margin-left:auto}
+.lc-tiers{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.lc-tier{background:#0F1419;border:1px solid #1F2937;border-radius:6px;padding:12px}
+.lc-tier-label{font-family:monospace;font-size:9px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;font-weight:700}
+.lc-tier.strong{border-left:3px solid #4ADE80}.lc-tier.strong .lc-tier-label{color:#4ADE80}
+.lc-tier.medium{border-left:3px solid #FBBF24}.lc-tier.medium .lc-tier-label{color:#FBBF24}
+.lc-tier.weak{border-left:3px solid #F87171}.lc-tier.weak .lc-tier-label{color:#F87171}
+.score-tiny{font-family:monospace;font-size:10px;color:#FF6B35;font-weight:800;margin-left:2px}
+.ext-cap-intro{font-size:12.5px;color:#B8C2D1;line-height:1.7;margin-bottom:18px;padding:12px 16px;background:rgba(34,211,238,.06);border-left:3px solid #22D3EE;border-radius:4px}
+.ext-cap-intro strong{color:#67E8F9}
+.ext-cap-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px}
+.ext-cap-card{background:#0F1419;border:1px solid #1F2937;border-top:3px solid #22D3EE;border-radius:6px;padding:16px}
+.ecc-tag{display:inline-block;padding:2px 8px;background:rgba(34,211,238,.12);border:1px solid #22D3EE;color:#67E8F9;border-radius:10px;font-size:10px;font-family:monospace;font-weight:700;margin-bottom:10px}
+.ecc-name{font-size:15px;font-weight:800;color:#FAFBFC;margin-bottom:6px}
+.ecc-desc{font-size:12px;color:#B8C2D1;line-height:1.6;margin-bottom:12px}
+.lg-title{font-family:monospace;font-size:11px;color:#5A6478;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:14px}
+.lg-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:10px}
+.lg-item{padding:10px 12px;background:#0F1419;border-left:3px solid #FF6B35;border-radius:4px}
+.lg-name{font-size:12.5px;font-weight:800;color:#FAFBFC;margin-bottom:4px}
+.lg-desc{font-size:11px;color:#7A8499;line-height:1.5}
+.footer-note{text-align:center;padding:32px 0 16px;color:#5A6478;font-size:11px;font-family:monospace}
+@media(max-width:1100px){.main-grid,.cluster-grid,.similar-list,.lc-tiers,.insights{grid-template-columns:1fr}.best-grid{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+
+<body>
+<div class="container" id="root">
+  <div class="loading">Loading Chart.js library...</div>
+</div>
+
+<script>
+var vendors=[
+{name:"Zenity",color:"#FF6B35",scores:{Model:2,Agent:5,Platform:4,Identity:3,ShadowAI:1}},
+{name:"Straiker",color:"#E94560",scores:{Model:4,Agent:4,Platform:3,Identity:2,ShadowAI:3}},
+{name:"Noma Security",color:"#4ADE80",scores:{Model:5,Agent:4,Platform:3,Identity:3,ShadowAI:2}},
+{name:"Grip Security",color:"#FBBF24",scores:{Model:1,Agent:2,Platform:3,Identity:5,ShadowAI:5}},
+{name:"MS Agent 365",color:"#60A5FA",scores:{Model:4,Agent:4,Platform:5,Identity:4,ShadowAI:3}},
+{name:"Akto",color:"#A78BFA",scores:{Model:2,Agent:2,Platform:5,Identity:3,ShadowAI:2}},
+{name:"HiddenLayer",color:"#F472B6",scores:{Model:5,Agent:3,Platform:2,Identity:2,ShadowAI:1}},
+{name:"QuilrAI",color:"#22D3EE",scores:{Model:2,Agent:3,Platform:2,Identity:2,ShadowAI:5}},
+{name:"Pillar Security",color:"#C084FC",scores:{Model:5,Agent:4,Platform:3,Identity:3,ShadowAI:3}},
+{name:"Valence Security",color:"#FB923C",scores:{Model:1,Agent:2,Platform:4,Identity:5,ShadowAI:4}},
+{name:"Sun Security",color:"#94A3B8",scores:{Model:3,Agent:3,Platform:3,Identity:3,ShadowAI:3}},
+{name:"Ovalix",color:"#14B8A6",scores:{Model:3,Agent:4,Platform:4,Identity:3,ShadowAI:4}}
+];
+
+var layers=["Model","Agent","Platform","Identity","ShadowAI"];
+
+var layerLabels={
+Model:"Model",
+Agent:"Agent",
+Platform:"Platform",
+Identity:"Identity",
+ShadowAI:"Shadow AI"
+};
+
+var layerSubs={
+Model:"// AI 모델 보안",
+Agent:"// 행동 보안",
+Platform:"// 앱/자동화",
+Identity:"// NHI/자격증명",
+ShadowAI:"// 비인가 AI"
+};
+
+var layerExplanations={
+Model:"AI 모델 자체의 보안 - Prompt Injection, Data Leakage, Model Extraction, Hallucination 등 모델 입출력과 학습/추론 단계의 위협을 다룸",
+Agent:"AI Agent의 행동 보안 - Goal Hijack, Tool Misuse, Memory Poisoning, Excessive Agency 등 Agent가 자율적으로 작업을 수행할 때의 위협 통제",
+Platform:"AI 앱/자동화 플랫폼 보안 - Copilot Studio, Power Platform, SaaS Automation 환경의 Connector, API, Access Control, Supply Chain 위협을 다룸",
+Identity:"비인가 자격증명(NHI) 보안 - Service Account, API Key, OAuth App의 Secret Leakage, Over-Permission, Lifecycle 관리를 다룸",
+ShadowAI:"비인가 AI 사용 통제 - 임직원의 개인 ChatGPT/Claude 등 외부 AI 사용, 민감정보 입력, 브라우저 확장 등 통제 및 AI 사용의 가시성"
+};
+
+var threatDomains={
+Model:["Prompt Injection","Data Leakage","Model Extraction","Hallucination"],
+Agent:["Goal Hijack","Tool Misuse","Memory Poisoning","Excessive Agency"],
+Platform:["Connector Abuse","API Abuse","Access Control","Supply Chain"],
+Identity:["Secret Leakage","Over-Permission","Third-party NHI","NHI Lifecycle"],
+ShadowAI:["Unauthorized AI Use","Sensitive Data Input","Personal Account","Visibility Gap"]
+};
+
+var domainDesc={
+"Prompt Injection":"악의적인 프롬프트로 모델 응답/조작 시도",
+"Data Leakage":"학습 데이터/응답을 통한 민감정보 유출",
+"Model Extraction":"반복 쿼리로 모델 가중치/구조 탈취",
+"Hallucination":"AI가 사실과 다른 거짓 정보 생성",
+"Goal Hijack":"Agent의 원래 목적을 변조하여 악용",
+"Tool Misuse":"API/결제/삭제 등 위험 도구 오남용",
+"Memory Poisoning":"Agent 컨텍스트/메모리 오염으로 동작 왜곡",
+"Excessive Agency":"승인 없이 Agent가 무단 실행하는 권한 남용",
+"Connector Abuse":"SaaS 커넥터 악용한 데이터 이동/유출",
+"API Abuse":"비정상 API 호출/오용 패턴",
+"Access Control":"공개 링크/익명 접근/과도 공유 노출",
+"Supply Chain":"Plugin/Extension/LoRA 등 외부 컴포넌트 위험",
+"Secret Leakage":"API Key/Token/Password 등 자격증명 노출",
+"Over-Permission":"비인가 계정의 과도한 권한 부여",
+"Third-party NHI":"외부 SaaS/OAuth 앱에 부여된 자격증명 위험",
+"NHI Lifecycle":"Secret Rotation/Offboarding 등 수명 관리",
+"Unauthorized AI Use":"승인되지 않은 외부 AI(ChatGPT 등) 사용",
+"Sensitive Data Input":"외부 AI에 민감정보 입력/붙여넣기",
+"Personal Account":"개인 계정으로 AI 서비스 사용",
+"Visibility Gap":"Shadow AI 사용 가시성 부재"
+};
+
+var vendorSpecialty={
+"Zenity":"Agent 행동 분석 + LCNC 자동화 보안 특화",
+"Straiker":"AI/ML 모델 보호 + Runtime Defense",
+"Noma Security":"AI Model Lifecycle + 데이터 보안 중심",
+"Grip Security":"SaaS Discovery + Shadow IT/AI 가시성",
+"MS Agent 365":"Microsoft 생태계 통합 + Copilot 보안",
+"Akto":"API Security Posture 특화",
+"HiddenLayer":"ML Model 보안 + Adversarial 방어",
+"QuilrAI":"Shadow AI + Browser-level Prompt DLP",
+"Pillar Security":"End-to-End AI 보안 플랫폼",
+"Valence Security":"SaaS Posture + Identity Governance",
+"Sun Security":"균형있는 일반 AI 보안",
+"Ovalix":"AI App + Shadow AI 통합 가시성 + Runtime Control 지향"
+};
+
+var extCapabilities={
+"SaaS":{fullName:"SaaS Security / SSPM",desc:"SaaS 환경의 보안 상태 관리 - SaaS 앱 섀도 발견, OAuth 앱 위험 평가, 설정 오류 탐지, SaaS 간 데이터 흐름 가시화"},
+"API":{fullName:"API Security",desc:"API Discovery, Schema 검증, Shadow/Zombie API 탐지, API 취약점 테스트, API 호출 패턴 분석"},
+"DLP":{fullName:"DLP / Data Governance",desc:"데이터 분류 및 유출 방지 - 민감 데이터 자동 분류, 데이터 이동 추적, 외부 전송 차단"},
+"MLOps":{fullName:"MLOps Pipeline Security",desc:"ML 학습/배포 파이프라인 보안 - 학습 데이터 무결성, 모델 저장소 보안, 배포 파이프라인 보호"},
+"Browser":{fullName:"Browser Security",desc:"브라우저 레벨 보안 통제 - 브라우저 확장 위험, 웹 페이지 내 데이터 입력 통제, Prompt-level DLP"}
+};
+
+var vendorBadges={
+"Zenity":[],
+"Straiker":["Browser"],
+"Noma Security":["MLOps","DLP"],
+"Grip Security":["SaaS"],
+"MS Agent 365":["DLP","SaaS"],
+"Akto":["API"],
+"HiddenLayer":["MLOps"],
+"QuilrAI":["Browser","DLP"],
+"Pillar Security":[],
+"Valence Security":["SaaS","DLP"],
+"Sun Security":[],
+"Ovalix":["SaaS","DLP","Browser"]
+};
+
+var vendorExtRationale={
+"Straiker":{
+Browser:{type:["pos","neu"],bullets:["<strong>브라우저 Telemetry 기반 사용자 행동 추적</strong>","웹 기반 AI 사용 모니터링 기능 제공"]}
+},
+"Noma Security":{
+MLOps:{type:["pos","pos"],bullets:["<strong>ML 학습/배포 파이프라인 보안</strong>","Model Registry, Training Data 검증"]},
+DLP:{type:["pos","neu"],bullets:["<strong>AI 데이터 분류 및 흐름 추적</strong>","민감 데이터 라이프사이클 관리"]}
+},
+"Grip Security":{
+SaaS:{type:["pos","pos"],bullets:["<strong>SaaS Discovery 엔진 강점</strong>","Shadow IT/SaaS 섀도 발견 + OAuth 앱 위험 등급화"]}
+},
+"MS Agent 365":{
+DLP:{type:["pos","pos"],bullets:["<strong>Purview Information Protection 네이티브 통합</strong>","민감 데이터 자동 분류 + 정책 기반 차단"]},
+SaaS:{type:["pos","neu"],bullets:["<strong>Defender for Cloud Apps로 SaaS Posture 관리</strong>","Microsoft 생태계 내 SaaS 통합 강함"]}
+},
+"Akto":{
+API:{type:["pos","pos"],bullets:["<strong>API Discovery/Posture/Testing 특화</strong>","Shadow API, Zombie API 자동 식별 + 취약점 테스트"]}
+},
+"HiddenLayer":{
+MLOps:{type:["pos","pos"],bullets:["<strong>Model Scanner 기반 ML 파이프라인 보안</strong>","학습/배포 단계에서 모델 위협 자동 탐지"]}
+},
+"QuilrAI":{
+Browser:{type:["pos","pos"],bullets:["<strong>Browser Extension 기반 실시간 통제 핵심</strong>","모든 웹 AI 서비스에 대한 Prompt-level 통제"]},
+DLP:{type:["pos","neu"],bullets:["<strong>Prompt-level DLP 매우 강함</strong>","외부 AI 입력 데이터 마스킹/차단"]}
+},
+"Valence Security":{
+SaaS:{type:["pos","pos"],bullets:["<strong>SSPM 핵심 영역</strong>","SaaS App Risk 자동 평가 + 정책 적용"]},
+DLP:{type:["pos","neu"],bullets:["<strong>SaaS 내 민감 데이터 흐름 가시화</strong>","Identity-aware DLP 정책 연계"]}
+},
+"Ovalix":{
+SaaS:{type:["pos","neu"],bullets:["<strong>SaaS 기반 AI 사용 가시성 확보</strong>","외부 AI 서비스 연동 추적 중심"]},
+DLP:{type:["pos","neu"],bullets:["<strong>AI 데이터 흐름 제어 및 민감정보 보호</strong>","Prompt 단위 통제 일부 지원"]},
+Browser:{type:["pos","pos"],bullets:["<strong>브라우저 기반 AI 접근 통제</strong>","<strong>Shadow AI 실시간 탐지 및 차단</strong>"]}
+}
+};
+
+var vendorRationale={
+"Zenity":{
+Model:{type:["neg","neg","neu"],bullets:["<strong>모델 자체 방어 부여</strong>: Adversarial Attack 직접 대응 X","<strong>Hallucination 검증 약함</strong>","Output 단계 일부 민감정보 탐지"]},
+Agent:{type:["pos","pos","pos"],bullets:["<strong>Agent Runtime 추적 핵심 차별점</strong>","<strong>Goal Hijack 탐지 강함</strong>","Excessive Agency 통제 + HITL 워크플로"]},
+Platform:{type:["pos","pos","neu"],bullets:["<strong>Copilot Studio/Power Platform 통합</strong>","<strong>Connector/Flow 가시화 매우 강함</strong>","Plugin Supply Chain 검증 한정적"]},
+Identity:{type:["pos","neg","neg"],bullets:["<strong>Agent 자격증명 Runtime 추적</strong>","<strong>NHI Inventory 관리 부여</strong>","Secret Rotation, Offboarding 미지원"]},
+ShadowAI:{type:["neg","neg","neg"],bullets:["<strong>Enterprise AI Scope에 한정</strong>","<strong>개인 ChatGPT 사용 탐지 불가</strong>","Shadow AI는 CASB 영역 보완 필요"]}
+},
+"Straiker":{
+Model:{type:["pos","pos","neu"],bullets:["<strong>Adversarial Attack 방어 특화</strong>","<strong>Runtime Model Protection</strong>","Model Extraction 탐지 부분 지원"]},
+Agent:{type:["pos","pos","neu"],bullets:["<strong>Agent Runtime Guardrail 제공</strong>","Memory Poisoning 일부 탐지","LCNC 환경 통합 약함"]},
+Platform:{type:["neu","neu","neg"],bullets:["AI App 보안 일부 지원","<strong>SaaS/LCNC 통합 약함</strong>","Plugin Supply Chain 검증 한정적"]},
+Identity:{type:["neg","neg","neg"],bullets:["<strong>NHI Inventory 영역 약함</strong>","Prompt 응답 내 일부만 탐지","Identity Lifecycle 미지원"]},
+ShadowAI:{type:["pos","neu","neu"],bullets:["<strong>브라우저 Telemetry 기반 외부 AI 사용 일부 식별</strong>","Prompt-level DLP 부분 차단","CASB 수준 못 미침"]}
+},
+"Noma Security":{
+Model:{type:["pos","pos","pos"],bullets:["<strong>AI/ML 모델 보호 핵심</strong>","<strong>Data Poisoning 탐지 강함</strong>","MLOps 파이프라인 통합"]},
+Agent:{type:["pos","pos","neu"],bullets:["Agent Runtime 모니터링","Prompt Injection 일부 탐지","LCNC 통합 보조적"]},
+Platform:{type:["neu","neu","neg"],bullets:["<strong>MLOps 환경 중심</strong>","Copilot Studio 통합 약함","API Discovery 보조 수준"]},
+Identity:{type:["neu","neu","neg"],bullets:["Service Account 일부 가시화","AI 자격증명은 한정적","전체 NHI Lifecycle 부여"]},
+ShadowAI:{type:["neu","neg","neg"],bullets:["AI Inventory 일부 가능","<strong>실시간 차단 약함</strong>","브라우저 기반 탐지 미지원"]}
+},
+"Grip Security":{
+Model:{type:["neg","neg","neg"],bullets:["<strong>AI 모델 보안 영역 약함</strong>","Prompt Injection 직접 대응 X","Model Extraction 부여"]},
+Agent:{type:["neg","neg","neu"],bullets:["Agent Runtime 통제 영역 약함","Goal Hijack 탐지 부여","SaaS 사용 패턴 일부 가시화"]},
+Platform:{type:["pos","neu","neg"],bullets:["<strong>SaaS Discovery 기반 LCNC 식별</strong>","Connector 섀도 분류","Plugin 검증 한정적"]},
+Identity:{type:["pos","pos","pos"],bullets:["<strong>NHI/OAuth App 전체 가시화 핵심</strong>","<strong>Service Account Inventory 매우 강함</strong>","Third-party NHI 권한 검토"]},
+ShadowAI:{type:["pos","pos","pos"],bullets:["<strong>SaaS Discovery 기반 Shadow AI 자동 식별</strong>","<strong>개인 ChatGPT 사용 탐지 가능</strong>","Browser Extension 섀도 발견"]}
+},
+"MS Agent 365":{
+Model:{type:["pos","pos","neu"],bullets:["<strong>Azure AI Content Safety + Defender 연계</strong>","Prompt Shield로 Injection 차단","Model Extraction은 Azure OpenAI 한정"]},
+Agent:{type:["pos","pos","neu"],bullets:["<strong>Copilot 보안 네이티브 통합</strong>","Purview 데이터 분류 연계","타사 Agent 통합 한정적"]},
+Platform:{type:["pos","pos","pos"],bullets:["<strong>M365/Power Platform 네이티브 통합 최고</strong>","Connector 통제 매우 강함","MS 생태계 외부는 약함"]},
+Identity:{type:["pos","pos","pos"],bullets:["<strong>Entra ID 기반 NHI 통합 관리</strong>","Managed Identity 자동 관리","Conditional Access JIT 강함"]},
+ShadowAI:{type:["pos","neu","neg"],bullets:["<strong>Defender for Cloud Apps로 일부 탐지</strong>","개인 계정 추적 한정적","Edge for Business에 의존"]}
+},
+"Akto":{
+Model:{type:["neg","neg","neg"],bullets:["<strong>Model 자체 보안 영역 약함</strong>","Prompt Injection 직접 대응 X","API 보안에 집중"]},
+Agent:{type:["neg","neg","neg"],bullets:["Agent 행동 분석 한정적","Goal Hijack 탐지 부여","API Call 분석에 국한"]},
+Platform:{type:["pos","pos","pos"],bullets:["<strong>API Discovery/Posture 매우 강함</strong>","Shadow API 자동 식별","API DLP 정책 적용"]},
+Identity:{type:["neu","neu","neg"],bullets:["API Key Inventory 부분 제공","API 호출 권한 분석","NHI Lifecycle 부여"]},
+ShadowAI:{type:["neu","neg","neg"],bullets:["Shadow API 식별 강함","<strong>외부 AI 사용 행위 탐지 약함</strong>","브라우저 기반 탐지 부여"]}
+},
+"HiddenLayer":{
+Model:{type:["pos","pos","pos"],bullets:["<strong>ML Model 보안 최고 수준</strong>","<strong>Adversarial/Model Theft 방어 특화</strong>","Model Scanner 자동 탐지"]},
+Agent:{type:["neu","neu","neg"],bullets:["Agent Runtime 보조 수준","Tool Misuse 일부 탐지","Agentic Workflow 한정적"]},
+Platform:{type:["neg","neg","neg"],bullets:["<strong>MLOps 중심, Copilot 미커버</strong>","SaaS Discovery 영역 약함","API 보안 약함"]},
+Identity:{type:["neg","neg","neg"],bullets:["<strong>Identity 영역 다루지 않음</strong>","NHI Inventory 미지원","Secret Leakage 부여"]},
+ShadowAI:{type:["neg","neg","neg"],bullets:["<strong>Shadow AI 탐지 영역 약함</strong>","사용자 행위 모니터링 부여","ML Lifecycle에만 집중"]}
+},
+"QuilrAI":{
+Model:{type:["neg","neg","neg"],bullets:["Model 자체 보안 약함","Runtime 방어 한정적","Hallucination 검증 미지원"]},
+Agent:{type:["neu","neu","neg"],bullets:["AI 사용 행위 일부 분석","Prompt 단위 통제 가능","Tool Misuse 통제 약함"]},
+Platform:{type:["neg","neg","neg"],bullets:["Enterprise AI App 한정적","Copilot Studio 통합 부여","API Discovery 영역 약함"]},
+Identity:{type:["neg","neg","neg"],bullets:["NHI 관리 영역 약함","Prompt 차원만 Secret 탐지","Lifecycle 부여"]},
+ShadowAI:{type:["pos","pos","pos"],bullets:["<strong>Browser Extension 기반 실시간 통제</strong>","<strong>Prompt-level DLP 매우 강함</strong>","개인 AI 데이터 마스킹 + 사용자 코칭"]}
+},
+"Pillar Security":{
+Model:{type:["pos","pos","pos"],bullets:["<strong>AI Posture + Model 보안 통합</strong>","Prompt Injection, Jailbreak 모두 탐지","AI Asset Inventory 기반 위험 평가"]},
+Agent:{type:["pos","pos","neu"],bullets:["<strong>End-to-End Agent Runtime 보안</strong>","Goal Hijack, Tool Misuse 탐지","LCNC 통합 보조적"]},
+Platform:{type:["neu","neu","neu"],bullets:["AI App 환경 보안 일반","Connector 통제 일부","Supply Chain 보조"]},
+Identity:{type:["neu","neu","neg"],bullets:["AI 관련 자격증명 일부 식별","Service Account 부분 지원","NHI Lifecycle 부여"]},
+ShadowAI:{type:["neu","neu","neg"],bullets:["AI 사용 Inventory 일부","외부 AI 사용 일부 가시화","실시간 차단 약함"]}
+},
+"Valence Security":{
+Model:{type:["neg","neg","neg"],bullets:["<strong>Model 보안 영역 약함</strong>","Prompt Injection 직접 대응 X","Data Poisoning 미커버"]},
+Agent:{type:["neg","neg","neg"],bullets:["Agent 행동 통제 영역 약함","SaaS 자동화 일부 가시화","Goal Hijack 탐지 부여"]},
+Platform:{type:["pos","pos","neu"],bullets:["<strong>SaaS Posture Management 강함</strong>","SaaS App Risk 자동 평가","AI LCNC 보조적"]},
+Identity:{type:["pos","pos","pos"],bullets:["<strong>OAuth App/NHI Lifecycle 핵심</strong>","<strong>Third-party 권한 자동 검토</strong>","Identity Governance 연계"]},
+ShadowAI:{type:["pos","pos","neu"],bullets:["<strong>SaaS Discovery로 Shadow AI 가시화</strong>","OAuth 기반 AI 연동 탐지","브라우저 직접 통제 약함"]}
+},
+"Sun Security":{
+Model:{type:["neu","neu","neu"],bullets:["범용 AI 보안 평균","Prompt Injection 기본 탐지","특화 기능 부여"]},
+Agent:{type:["neu","neu","neu"],bullets:["Agent 모니터링 일반","Tool Misuse 기본 탐지","Runtime 추적 보조"]},
+Platform:{type:["neu","neu","neu"],bullets:["Platform 보안 일반","Connector 통제 기본","Supply Chain 보조"]},
+Identity:{type:["neu","neu","neu"],bullets:["Identity 보안 일반","NHI Inventory 기본","Secret Leakage 탐지 보조"]},
+ShadowAI:{type:["neu","neu","neu"],bullets:["Shadow AI 일반 수준","AI 사용 가시화 기본","통제 기능 보조"]}
+},
+"Ovalix":{
+Model:{type:["neu","neu","neg"],bullets:["<strong>모델 자체 방어 기능 제한</strong>","Prompt 기반 일부 위협 탐지","Model Extraction 대응 약함"]},
+Agent:{type:["pos","pos","neu"],bullets:["<strong>Agent 실행 흐름 가시화</strong>","<strong>행동 기반 정책 통제 지원</strong>","Deep Runtime Instrumentation 제한"]},
+Platform:{type:["pos","pos","neu"],bullets:["<strong>SaaS/AI App 사용 흐름 분석 강점</strong>","<strong>AI 서비스 연동 가시화</strong>","Plugin Supply Chain 분석 제한"]},
+Identity:{type:["neu","neu","neg"],bullets:["AI 사용 계정 일부 추적","OAuth/App 권한 일부 분석","<strong>NHI Lifecycle 관리 미흡</strong>"]},
+ShadowAI:{type:["pos","pos","pos"],bullets:["<strong>Shadow AI 탐지 핵심 강점</strong>","<strong>브라우저 기반 실시간 통제</strong>","외부 AI 사용 가시성 매우 높음"]}
+}
+};
+
+var vendorClusters=[
+{name:"Agent + Platform Specialists",trait:"// Agent 행동 보안 + LCNC/SaaS 자동화 통합 강함, Shadow AI는 약함",members:["Zenity","MS Agent 365"],pattern:{Model:3.0,Agent:4.5,Platform:4.5,Identity:3.5,ShadowAI:2.0}},
+{name:"Model Security Powerhouses",trait:"// AI/ML 모델 자체 보호, Adversarial 방어 특화, Identity 영역 약함",members:["HiddenLayer","Pillar Security","Noma Security","Straiker"],pattern:{Model:4.75,Agent:3.75,Platform:2.75,Identity:2.5,ShadowAI:2.25}},
+{name:"Identity + Shadow AI Defenders",trait:"// NHI/SaaS Governance + Shadow AI 가시성 강함, Model 영역 약함",members:["Grip Security","Valence Security","Ovalix"],pattern:{Model:1.7,Agent:2.7,Platform:3.7,Identity:4.3,ShadowAI:4.3}},
+{name:"Shadow AI Browser-Level Focus",trait:"// Browser/Prompt-level Shadow AI 통제 특화",members:["QuilrAI","Ovalix"],pattern:{Model:2.5,Agent:3.5,Platform:3.0,Identity:2.5,ShadowAI:4.5}},
+{name:"API-First Platform Specialist",trait:"// API Security Posture 특화",members:["Akto"],pattern:{Model:2.0,Agent:2.0,Platform:5.0,Identity:3.0,ShadowAI:2.0}},
+{name:"Balanced Generalist",trait:"// 모든 Layer를 평균 수준으로 균형 있게 커버",members:["Sun Security"],pattern:{Model:3.0,Agent:3.0,Platform:3.0,Identity:3.0,ShadowAI:3.0}}
+];
+
+vendors.forEach(function(v){
+v.threatScores={};
+layers.forEach(function(layer){
+threatDomains[layer].forEach(function(d){
+v.threatScores[d]=v.scores[layer];
+});
+});
+});
+
+var selected=["Zenity"];
+var radarChart=null;
+var explorerSelectedVendor="Zenity";
+
+function hexToRgba(hex,alpha){
+var r=parseInt(hex.slice(1,3),16);
+var g=parseInt(hex.slice(3,5),16);
+var b=parseInt(hex.slice(5,7),16);
+return "rgba("+r+","+g+","+b+","+alpha+")";
+}
+
+function findVendor(name){
+for(var i=0;i<vendors.length;i++){if(vendors[i].name===name)return vendors[i];}
+return null;
+}
+
+function totalScore(v){
+return layers.reduce(function(s,l){return s+v.scores[l];},0);
+}
+
+function buildLayout(){
+document.getElementById("root").innerHTML=
+'<div class="hero">'+
+'<div><h1>AI SECURITY <span class="accent">VENDOR MAP</span></h1><p>// Layer x Threat Domain Coverage Assessment</p></div>'+
+'<div style="text-align:right;"><div class="badge">AX SECURITY PIVOT TF</div><div style="margin-top:10px;font-size:12px;color:#5A6478;">// 12 vendors / 5 layers / 20 domains + Extended</div></div>'+
+'</div>'+
+section("01","Vendor Selection","// 다중 선택 가능")+
+'<div class="control-panel"><div class="control-row"><span class="control-label">// Selected vendors</span><button class="reset-btn" id="resetBtn">Reset</button></div><div class="vendor-chips" id="vendorChips"></div></div>'+
+section("02","Best-in-Class by Layer","// 선택된 벤더 기준 최고점")+
+'<div class="best-grid" id="bestGrid"></div><div class="insights" id="insights"></div>'+
+section("03","Coverage Radar","// Layer 기준 종합 비교 + Layer 의미 설명")+
+'<div class="main-grid"><div class="panel"><div class="panel-title">// Radar Chart (0~5) - 추가 강점은 +태그로 표시</div><div class="radar-box"><canvas id="radarChart"></canvas></div></div><div class="panel"><div class="panel-title">// Score Summary + Extended</div><div id="scoreTableWrap"></div></div></div>'+
+'<div class="layer-glossary"><div class="lg-title">// Layer Meaning - 각 Layer 의미 설명</div><div class="lg-list" id="layerGlossary"></div></div>'+
+section("04","Vendor Score Rationale","// Layer x Vendor 매트릭스 - Extended는 해당 벤더만 추가 표시")+
+'<div class="rationale-wrap" id="compareWrap"></div>'+
+section("05","Threat Domain Heatmap","// 20개 세부 영역 x 벤더 매트릭스")+
+'<div class="heatmap-wrap"><table class="heatmap-table" id="heatmapTable"></table><div class="legend-bar"><div class="legend-item"><div class="legend-color s-5"></div>5 STRONG</div><div class="legend-item"><div class="legend-color s-4"></div>4 GOOD</div><div class="legend-item"><div class="legend-color s-3"></div>3 MODERATE</div><div class="legend-item"><div class="legend-color s-2"></div>2 LIMITED</div><div class="legend-item"><div class="legend-color s-1"></div>1 WEAK</div><div class="legend-item"><div class="legend-color s-0"></div>0 NONE</div></div></div>'+
+section("06","Similar Vendor Groups","// 패턴이 비슷한 벤더 자동 클러스터링")+
+'<div class="cluster-grid" id="clusterGrid"></div>'+
+section("07","Vendor Similarity Explorer","// Core 5축 + Extended 강점 영역 고려한 유사도")+
+'<div class="explorer-wrap"><div class="explorer-controls" id="explorerControls"></div><div class="similar-list" id="similarList"></div></div>'+
+section("08","Layer-by-Layer Tier Groups","// Core 5개 Layer 기준 강함/중간/약함 그룹")+
+'<div class="layer-cluster-wrap" id="layerClusterWrap"></div>'+
+section("09","Extended Capabilities Map","// AI Security 외 추가로 커버하는 영역")+
+'<div class="ext-cap-wrap" id="extCapWrap"></div>'+
+'<div class="footer-note">// DATA: 공개 자료 + 내부 평가 기준 기반 추정치 - 실제 PoC 결과에 따라 조정 필요</div>';
+
+document.getElementById("resetBtn").onclick=function(){selected=["Zenity"];renderAll();};
+}
+
+function section(num,title,sub){
+return '<div class="sec-header"><span class="num">['+num+']</span><span class="title">'+title+'</span><span class="sub">'+sub+'</span></div><div class="divider"></div>';
+}
+
+function badgesHtml(vendorName){
+var badges=vendorBadges[vendorName]||[];
+if(!badges.length)return "";
+var html='<div class="cap-badges">';
+badges.forEach(function(b){
+var cap=extCapabilities[b];
+html+='<span class="cap-badge" title="'+cap.fullName+' - '+cap.desc.replace(/"/g,"&quot;")+'">'+b+'</span>';
+});
+html+='</div>';
+return html;
+}
+
+function renderChips(){
+var wrap=document.getElementById("vendorChips");
+wrap.innerHTML="";
+vendors.forEach(function(v){
+var el=document.createElement("div");
+el.className="vendor-chip"+(selected.indexOf(v.name)!==-1?" selected":"");
+el.innerHTML='<span class="dot" style="background:'+v.color+'"></span><span class="name">'+v.name+'</span>';
+el.onclick=function(){
+var idx=selected.indexOf(v.name);
+if(idx!==-1)selected.splice(idx,1);
+else selected.push(v.name);
+if(selected.length===0)selected=[v.name];
+renderAll();
+};
+wrap.appendChild(el);
+});
+}
+
+function renderLayerGlossary(){
+var wrap=document.getElementById("layerGlossary");
+var html="";
+layers.forEach(function(l){
+html+='<div class="lg-item"><div class="lg-name">'+layerLabels[l]+'</div><div class="lg-desc">'+layerExplanations[l]+'</div></div>';
+});
+wrap.innerHTML=html;
+}
+
+function renderRadar(){
+var ctx=document.getElementById("radarChart").getContext("2d");
+var datasets=selected.map(function(name){
+var v=findVendor(name);
+var badges=vendorBadges[v.name]||[];
+var label=v.name+(badges.length?"  "+badges.map(function(b){return "+"+b;}).join(" "):"");
+return{
+label:label,
+data:layers.map(function(l){return v.scores[l];}),
+backgroundColor:hexToRgba(v.color,.18),
+borderColor:v.color,
+borderWidth:2.4,
+pointBackgroundColor:v.color,
+pointBorderColor:"#0F1419",
+pointRadius:5,
+pointHoverRadius:8
+};
+});
+if(radarChart)radarChart.destroy();
+radarChart=new Chart(ctx,{
+type:"radar",
+data:{labels:layers.map(function(l){return layerLabels[l];}),datasets:datasets},
+options:{
+responsive:true,
+maintainAspectRatio:false,
+plugins:{
+legend:{position:"bottom",labels:{color:"#E6EAF0",font:{size:12,weight:"bold"},padding:14,usePointStyle:true,boxWidth:8}},
+tooltip:{backgroundColor:"#0F1419",borderColor:"#FF6B35",borderWidth:1,titleColor:"#FF6B35",bodyColor:"#FAFBFC"}
+},
+scales:{
+r:{
+min:0,
+max:5,
+ticks:{stepSize:1,backdropColor:"transparent",color:"#5A6478",font:{size:10}},
+grid:{color:"rgba(255,107,53,.08)"},
+angleLines:{color:"rgba(255,107,53,.15)"},
+pointLabels:{color:"#FAFBFC",font:{size:13,weight:"bold"}}
+}
+}
+}
+});
+}
+
+function renderScoreTable(){
+var wrap=document.getElementById("scoreTableWrap");
+var rows=selected.map(function(name){var v=findVendor(name);return{v:v,total:totalScore(v)};}).sort(function(a,b){return b.total-a.total;});
+var html='<table class="score-table"><thead><tr><th>// Vendor</th>';
+layers.forEach(function(l){html+='<th>'+layerLabels[l]+'</th>';});
+html+='<th>TOTAL</th></tr></thead><tbody>';
+rows.forEach(function(r,i){
+var rank="";
+if(i===0&&rows.length>1)rank='<span class="rank-tag rank-1">#1</span>';
+else if(i===1)rank='<span class="rank-tag rank-2">#2</span>';
+else if(i===2)rank='<span class="rank-tag rank-3">#3</span>';
+html+='<tr><td><div class="v-cell"><span class="dot" style="background:'+r.v.color+'"></span><span class="v-name">'+r.v.name+'</span>'+rank+badgesHtml(r.v.name)+'</div></td>';
+layers.forEach(function(l){html+='<td><span class="mini-score s-'+r.v.scores[l]+'">'+r.v.scores[l]+'</span></td>';});
+html+='<td class="total-cell">'+r.total+'/25</td></tr>';
+});
+html+='</tbody></table>';
+wrap.innerHTML=html;
+}
+
+function renderBestInClass(){
+var grid=document.getElementById("bestGrid");
+grid.innerHTML="";
+layers.forEach(function(layer){
+var best=null;
+selected.forEach(function(name){
+var v=findVendor(name);
+if(!best||v.scores[layer]>best.score)best={name:v.name,color:v.color,score:v.scores[layer]};
+});
+grid.innerHTML+='<div class="best-card"><div class="label">// '+layerLabels[layer]+' Champion</div><div class="layer-name">'+layerLabels[layer]+'</div><div class="winner"><span class="winner-dot" style="background:'+best.color+'"></span><span class="winner-name">'+best.name+'</span></div><div class="score-line"><span class="score-big">'+best.score+'</span><span class="score-max">/ 5</span></div></div>';
+});
+}
+
+function renderInsights(){
+var wrap=document.getElementById("insights");
+var ranked=selected.map(function(name){var v=findVendor(name);return{name:v.name,total:totalScore(v)};}).sort(function(a,b){return b.total-a.total;});
+var avg={};
+layers.forEach(function(l){
+var sum=selected.reduce(function(s,name){return s+findVendor(name).scores[l];},0);
+avg[l]=(sum/selected.length).toFixed(1);
+});
+var weakest=layers[0];
+layers.forEach(function(l){if(parseFloat(avg[l])<parseFloat(avg[weakest]))weakest=l;});
+wrap.innerHTML=
+'<div class="insight-card"><h4>// SELECTED</h4><div class="num-big">'+selected.length+'</div><p>비교 중인 솔루션 수</p></div>'+
+'<div class="insight-card"><h4>// TOP PERFORMER</h4><div class="num-big accent" style="font-size:20px;">'+ranked[0].name+'</div><p>'+ranked[0].total+' / 25 points</p></div>'+
+'<div class="insight-card"><h4>// WEAKEST LAYER</h4><div class="num-big" style="font-size:20px;">'+layerLabels[weakest]+'</div><p>avg '+avg[weakest]+' / 5</p></div>';
+}
+
+function renderCompareAnalysis(){
+var wrap=document.getElementById("compareWrap");
+var html="";
+if(selected.length===1){
+var v=findVendor(selected[0]);
+var rationale=vendorRationale[v.name];
+var badges=vendorBadges[v.name]||[];
+var extRat=vendorExtRationale[v.name];
+html+='<div class="single-vendor" style="border-left-color:'+v.color+'">';
+html+='<div class="vh"><span class="dot" style="background:'+v.color+'"></span><span class="vn">'+v.name+'</span><span class="total-pill">'+totalScore(v)+'/25</span></div>';
+html+='<div class="vh-tag">// '+vendorSpecialty[v.name]+'</div>'+badgesHtml(v.name);
+html+='<div class="layer-rows">';
+layers.forEach(function(l){
+var s=v.scores[l],lr=rationale[l];
+html+='<div class="layer-row"><div class="lr-name"><div class="lr-bar" style="background:'+v.color+'"></div><div class="lr-text">'+layerLabels[l]+'</div></div><div class="lr-score-box s-'+s+'">'+s+'</div><div class="lr-bullets"><ul>';
+lr.bullets.forEach(function(b,idx){html+='<li class="'+(lr.type[idx]||"neu")+'">'+b+'</li>';});
+html+='</ul></div></div>';
+});
+html+='</div>';
+if(badges.length&&extRat){
+html+='<div class="ext-section-divider"><div class="ext-banner"><span class="ext-label">// Extended Capabilities</span><span class="ext-desc">AI 보안 영역 외 추가 강점</span></div></div><div class="layer-rows">';
+badges.forEach(function(b){
+var cap=extCapabilities[b],br=extRat[b];
+if(!br)return;
+html+='<div class="layer-row ext"><div class="lr-name"><div class="lr-bar"></div><div class="lr-text">'+cap.fullName.split(" / ")[0]+'</div></div><div class="lr-score-box s-5">+</div><div class="lr-bullets"><ul>';
+br.bullets.forEach(function(bb,idx){html+='<li class="'+(br.type[idx]||"neu")+'">'+bb+'</li>';});
+html+='</ul></div></div>';
+});
+html+='</div>';
+}
+html+='</div>';
+wrap.innerHTML=html;
+return;
+}
+
+var gridCols="110px repeat("+selected.length+", minmax(220px,1fr))";
+html+='<div class="matrix-grid" style="grid-template-columns:'+gridCols+'">';
+html+='<div class="matrix-header-cell">// LAYER</div>';
+
+selected.forEach(function(name){
+var v=findVendor(name);
+html+='<div class="matrix-vendor-header" style="border-top-color:'+v.color+'"><div class="vh-row"><span class="dot" style="background:'+v.color+'"></span><span class="vn">'+v.name+'</span><span class="total-pill">'+totalScore(v)+'/25</span></div><div class="vh-tag">'+vendorSpecialty[v.name]+'</div>'+badgesHtml(v.name)+'</div>';
+});
+
+layers.forEach(function(l){
+html+='<div class="layer-label-cell"><div class="ll-name">'+layerLabels[l]+'</div><div class="ll-sub">'+layerSubs[l]+'</div></div>';
+selected.forEach(function(name){
+var v=findVendor(name),s=v.scores[l],lr=vendorRationale[v.name][l];
+html+='<div class="vendor-cell"><div class="score-display"><div class="vendor-mini"><span class="dot-mini" style="background:'+v.color+'"></span><span class="vn-mini">'+v.name+'</span></div><div class="lr-score-box s-'+s+'">'+s+'</div></div><div class="bullets-mini"><ul>';
+lr.bullets.forEach(function(b,idx){html+='<li class="'+(lr.type[idx]||"neu")+'">'+b+'</li>';});
+html+='</ul></div></div>';
+});
+});
+
+var allBadgeKeys=[];
+selected.forEach(function(name){
+(vendorBadges[name]||[]).forEach(function(b){if(allBadgeKeys.indexOf(b)===-1)allBadgeKeys.push(b);});
+});
+if(allBadgeKeys.length){
+allBadgeKeys.forEach(function(capKey){
+var cap=extCapabilities[capKey];
+html+='<div class="layer-label-cell ext"><div class="ll-name">+ '+capKey+'</div><div class="ll-sub">// '+cap.fullName+'</div></div>';
+selected.forEach(function(name){
+var v=findVendor(name),has=(vendorBadges[v.name]||[]).indexOf(capKey)!==-1,er=vendorExtRationale[v.name];
+html+='<div class="vendor-cell">';
+if(has&&er&&er[capKey]){
+html+='<div class="score-display"><div class="vendor-mini"><span class="dot-mini" style="background:'+v.color+'"></span><span class="vn-mini">'+v.name+'</span></div><div class="lr-score-box s-5">+</div></div><div class="bullets-mini"><ul>';
+er[capKey].bullets.forEach(function(bb,idx){html+='<li class="'+(er[capKey].type[idx]||"neu")+'">'+bb+'</li>';});
+html+='</ul></div>';
+}else{
+html+='<div class="score-display"><div class="vendor-mini"><span class="dot-mini" style="background:'+v.color+'"></span><span class="vn-mini">'+v.name+'</span></div><div class="lr-score-box s-0">-</div></div><div class="bullets-mini" style="color:#5A6478;">// 해당 영역 미보유</div>';
+}
+html+='</div>';
+});
+});
+}
+html+='</div>';
+
+var ranked=selected.map(function(name){var v=findVendor(name);return{name:v.name,total:totalScore(v)};}).sort(function(a,b){return b.total-a.total;});
+var layerLeaders={};
+layers.forEach(function(l){
+var max=-1,leader=null;
+selected.forEach(function(name){var v=findVendor(name);if(v.scores[l]>max){max=v.scores[l];leader=v;}});
+layerLeaders[l]={name:leader.name,score:max};
+});
+var bestCombo=[];
+layers.forEach(function(l){if(bestCombo.indexOf(layerLeaders[l].name)===-1)bestCombo.push(layerLeaders[l].name);});
+var leaderSummary="";
+layers.forEach(function(l){leaderSummary+='<strong>'+layerLabels[l]+'</strong> -> '+layerLeaders[l].name+' ('+layerLeaders[l].score+'/5) &nbsp; ';});
+html+='<div class="summary-block"><h4>// EXECUTIVE SUMMARY</h4><div class="line">';
+html+='> 종합 1위: <strong>'+ranked[0].name+'</strong> ('+ranked[0].total+'/25) | 최하위: <strong>'+ranked[ranked.length-1].name+'</strong> ('+ranked[ranked.length-1].total+'/25)<br>';
+html+='> Layer Champions: '+leaderSummary+'<br>';
+html+='> <strong>Best-in-Class Combo</strong> -> '+bestCombo.join(" + ")+'</div></div>';
+wrap.innerHTML=html;
+}
+
+function renderHeatmap(){
+var tbl=document.getElementById("heatmapTable");
+var html='<thead><tr><th style="min-width:80px;">// LAYER</th><th style="min-width:160px;">// THREAT DOMAIN</th><th style="min-width:260px;">// 설명</th>';
+selected.forEach(function(name){
+var v=findVendor(name);
+html+='<th><span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:'+v.color+';margin-right:6px;vertical-align:middle;"></span>'+v.name+'</th>';
+});
+html+='</tr></thead><tbody>';
+layers.forEach(function(layer){
+threatDomains[layer].forEach(function(domain,idx){
+html+='<tr>';
+if(idx===0)html+='<td class="layer-td" rowspan="'+threatDomains[layer].length+'">'+layerLabels[layer]+'</td>';
+html+='<td class="domain-td">'+domain+'</td><td class="domain-desc">'+(domainDesc[domain]||"")+'</td>';
+selected.forEach(function(name){
+var v=findVendor(name),s=v.threatScores[domain];
+html+='<td><div class="cell-score s-'+s+'">'+s+'</div></td>';
+});
+html+='</tr>';
+});
+});
+html+='</tbody>';
+tbl.innerHTML=html;
+}
+
+function renderClusterGroups(){
+var grid=document.getElementById("clusterGrid");
+var html="";
+vendorClusters.forEach(function(c){
+var membersHtml="";
+c.members.forEach(function(name){var v=findVendor(name);if(v)membersHtml+='<div class="member-chip"><span class="mc-dot" style="background:'+v.color+'"></span>'+v.name+'</div>';});
+var bars="";
+layers.forEach(function(l){
+var s=c.pattern[l],pct=s/5*100;
+bars+='<div class="pattern-bar"><div class="pb-label">'+layerLabels[l].substring(0,4)+'</div><div class="pb-fill"><div class="pb-inner" style="height:'+pct+'%;"></div></div><div class="pb-score">'+s.toFixed(1)+'</div></div>';
+});
+html+='<div class="cluster-card"><div class="cluster-name">'+c.name+'</div><div class="cluster-trait">'+c.trait+'</div><div class="pattern-bars">'+bars+'</div><div class="member-list">'+membersHtml+'</div></div>';
+});
+grid.innerHTML=html;
+}
+
+function cosineSimilarityExtended(baseName,otherName){
+var v1=findVendor(baseName).scores,v2=findVendor(otherName).scores;
+var dot=0,mag1=0,mag2=0;
+layers.forEach(function(l){var a=v1[l],b=v2[l];dot+=a*b;mag1+=a*a;mag2+=b*b;});
+var b1=vendorBadges[baseName]||[],b2=vendorBadges[otherName]||[];
+Object.keys(extCapabilities).forEach(function(k){
+var a=b1.indexOf(k)!==-1?5:0;
+var b=b2.indexOf(k)!==-1?5:0;
+dot+=a*b;mag1+=a*a;mag2+=b*b;
+});
+if(mag1===0||mag2===0)return 0;
+return dot/(Math.sqrt(mag1)*Math.sqrt(mag2));
+}
+
+function renderExplorer(){
+var controls=document.getElementById("explorerControls");
+var list=document.getElementById("similarList");
+var ctrl='<span class="label">// Base vendor:</span>';
+vendors.forEach(function(v){
+ctrl+='<div class="vendor-select-chip '+(explorerSelectedVendor===v.name?"active":"")+'" data-vendor="'+v.name+'">'+v.name+'</div>';
+});
+controls.innerHTML=ctrl;
+var chips=controls.querySelectorAll(".vendor-select-chip");
+for(var i=0;i<chips.length;i++){
+chips[i].onclick=function(){
+explorerSelectedVendor=this.getAttribute("data-vendor");
+renderExplorer();
+};
+}
+var base=findVendor(explorerSelectedVendor);
+var sims=[];
+vendors.forEach(function(v){
+if(v.name!==base.name)sims.push({vendor:v,sim:cosineSimilarityExtended(base.name,v.name)});
+});
+sims.sort(function(a,b){return b.sim-a.sim;});
+var top3=sims.slice(0,3);
+
+function note(baseV,otherV){
+var high=[],low=[],shared=[];
+layers.forEach(function(l){
+if(baseV.scores[l]>=4&&otherV.scores[l]>=4)high.push(layerLabels[l]);
+if(baseV.scores[l]<=2&&otherV.scores[l]<=2)low.push(layerLabels[l]);
+});
+var bb=vendorBadges[baseV.name]||[],ob=vendorBadges[otherV.name]||[];
+bb.forEach(function(b){if(ob.indexOf(b)!==-1)shared.push(b);});
+var n="";
+if(high.length)n+="<strong>같이 강함</strong>: "+high.join(", ");
+if(low.length){if(n)n+=" &nbsp;|&nbsp; ";n+="<strong>같이 약함</strong>: "+low.join(", ");}
+if(shared.length){if(n)n+="<br>";n+="<strong>공통 Extended</strong>: +"+shared.join(" / +");}
+if(!n)n="<strong>중간 점수 영역에서 유사한 패턴</strong>";
+return n;
+}
+
+var html="";
+top3.forEach(function(item,idx){
+var v=item.vendor,pct=(item.sim*100).toFixed(1),bars="";
+layers.forEach(function(l){
+var h=v.scores[l]/5*100;
+bars+='<div class="smb"><div class="smb-fill" style="height:'+h+'%;"></div><div class="smb-label">'+layerLabels[l].substring(0,3)+'</div></div>';
+});
+html+='<div class="similar-card"><div class="sim-rank">#'+(idx+1)+' SIMILAR</div><div class="sim-header"><span class="dot" style="background:'+v.color+'"></span><span class="vn">'+v.name+'</span></div><div class="sim-percent">'+pct+'%</div><div class="sim-mini-bars">'+bars+'</div><div class="sim-note">'+note(base,v)+'</div></div>';
+});
+list.innerHTML=html;
+}
+
+function renderLayerClusters(){
+var wrap=document.getElementById("layerClusterWrap");
+var html="";
+layers.forEach(function(l){
+var strong=[],medium=[],weak=[];
+vendors.forEach(function(v){
+var s=v.scores[l];
+if(s>=4)strong.push({v:v,s:s});
+else if(s>=3)medium.push({v:v,s:s});
+else weak.push({v:v,s:s});
+});
+strong.sort(function(a,b){return b.s-a.s;});
+medium.sort(function(a,b){return b.s-a.s;});
+weak.sort(function(a,b){return b.s-a.s;});
+
+function tier(arr){
+var h='<div class="lc-members">';
+arr.forEach(function(item){
+h+='<div class="lc-member"><span class="dot-tiny" style="background:'+item.v.color+'"></span>'+item.v.name+'<span class="score-tiny">'+item.s+'</span></div>';
+});
+h+='</div>';
+return h;
+}
+
+html+='<div class="layer-cluster-row"><div class="lc-header"><div class="lc-bar"></div><div class="lc-name">'+layerLabels[l]+'</div><div class="lc-desc">'+layerSubs[l]+'</div></div><div class="lc-tiers">'+
+'<div class="lc-tier strong"><div class="lc-tier-label">// STRONG (4~5)</div>'+tier(strong)+'</div>'+
+'<div class="lc-tier medium"><div class="lc-tier-label">// MEDIUM (3)</div>'+tier(medium)+'</div>'+
+'<div class="lc-tier weak"><div class="lc-tier-label">// WEAK (0~2)</div>'+tier(weak)+'</div>'+
+'</div></div>';
+});
+wrap.innerHTML=html;
+}
+
+function renderExtCapMap(){
+var wrap=document.getElementById("extCapWrap");
+var html='<div class="ext-cap-intro"><strong>Extended Capabilities</strong>는 AI Security 5개 Core Layer 외에 각 벤더가 추가로 커버하는 영역입니다. 방사형 그래프에는 영향을 주지 않지만, 벤더 선택 시 해당 강점이 +태그로 표시되고, [04] Rationale 섹션에서는 추가 분석이 표시됩니다.</div><div class="ext-cap-grid">';
+Object.keys(extCapabilities).forEach(function(k){
+var cap=extCapabilities[k],owners=[];
+vendors.forEach(function(v){if((vendorBadges[v.name]||[]).indexOf(k)!==-1)owners.push(v);});
+var ownersHtml="";
+if(!owners.length)ownersHtml='<div style="font-size:11px;color:#5A6478;font-family:monospace;">// 해당 벤더 없음</div>';
+else owners.forEach(function(v){ownersHtml+='<div class="ecc-vendor-chip"><span class="ecc-dot" style="background:'+v.color+'"></span>'+v.name+'</div>';});
+html+='<div class="ext-cap-card"><span class="ecc-tag">+'+k+'</span><div class="ecc-name">'+cap.fullName+'</div><div class="ecc-desc">'+cap.desc+'</div><div class="ecc-vendors">'+ownersHtml+'</div></div>';
+});
+html+='</div>';
+wrap.innerHTML=html;
+}
+
+function renderAll(){
+renderChips();
+renderRadar();
+renderScoreTable();
+renderBestInClass();
+renderInsights();
+renderLayerGlossary();
+renderCompareAnalysis();
+renderHeatmap();
+renderClusterGroups();
+renderExplorer();
+renderLayerClusters();
+renderExtCapMap();
+}
+
+var chartScript=document.createElement("script");
+chartScript.src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js";
+chartScript.onload=function(){
+buildLayout();
+renderAll();
+};
+chartScript.onerror=function(){
+document.getElementById("root").innerHTML='<div class="loading" style="color:#F87171;">Chart.js 로딩 실패 - 인터넷 연결 또는 CDN 접근 정책을 확인하세요.</div>';
+};
+document.head.appendChild(chartScript);
+</script>
+</body>
+</html>
