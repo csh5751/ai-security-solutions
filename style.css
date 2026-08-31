@@ -267,6 +267,10 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 .status-completed:before{background:var(--ext-accent)}
 .status-not-started{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border-strong)}
 .status-not-started:before{background:var(--text-muted)}
+.status-pending{background:var(--surface-2);color:var(--text-secondary);border:1px dashed var(--border-strong)}
+.status-pending:before{background:var(--text-secondary)}
+.status-cancelled{background:var(--surface-2);color:var(--text-faint);border:1px solid var(--border-strong)}
+.status-cancelled:before{background:var(--status-bad)}
 
 /* ---- Progress bar ---- */
 .progress-bar-track{width:100%;height:9px;background:var(--border);border-radius:5px;overflow:hidden}

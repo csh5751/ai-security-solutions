@@ -3,10 +3,12 @@ var statusLabels={
 "on-track":"정상 진행",
 "delayed":"지연",
 "blocked":"차단됨",
-"completed":"완료"
+"completed":"완료",
+"pending":"Pending",
+"cancelled":"중단/취소"
 };
 
-var statusFilters=["all","on-track","delayed","blocked","completed","not-started"];
+var statusFilters=["all","on-track","delayed","blocked","completed","not-started","pending","cancelled"];
 var progressFilter="all";
 var dataSource="fallback";
 
