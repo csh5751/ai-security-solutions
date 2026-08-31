@@ -181,18 +181,17 @@ li.neu:before{content:'.';position:absolute;left:0;color:#7A8499;font-weight:800
 
 <script>
 var vendors=[
-{name:"Zenity",color:"#FF6B35",scores:{Model:2,Agent:5,Platform:4,Identity:3,ShadowAI:1}},
-{name:"Straiker",color:"#E94560",scores:{Model:4,Agent:4,Platform:3,Identity:2,ShadowAI:3}},
-{name:"Noma Security",color:"#4ADE80",scores:{Model:5,Agent:4,Platform:3,Identity:3,ShadowAI:2}},
+{name:"Zenity",color:"#FF6B35",scores:{Model:2,Agent:5,Platform:4,Identity:3,ShadowAI:2}},
 {name:"Grip Security",color:"#FBBF24",scores:{Model:1,Agent:2,Platform:3,Identity:5,ShadowAI:5}},
-{name:"MS Agent 365",color:"#60A5FA",scores:{Model:4,Agent:4,Platform:5,Identity:4,ShadowAI:3}},
-{name:"Akto",color:"#A78BFA",scores:{Model:2,Agent:2,Platform:5,Identity:3,ShadowAI:2}},
-{name:"HiddenLayer",color:"#F472B6",scores:{Model:5,Agent:3,Platform:2,Identity:2,ShadowAI:1}},
-{name:"QuilrAI",color:"#22D3EE",scores:{Model:2,Agent:3,Platform:2,Identity:2,ShadowAI:5}},
-{name:"Pillar Security",color:"#C084FC",scores:{Model:5,Agent:4,Platform:3,Identity:3,ShadowAI:3}},
-{name:"Valence Security",color:"#FB923C",scores:{Model:1,Agent:2,Platform:4,Identity:5,ShadowAI:4}},
-{name:"Sun Security",color:"#94A3B8",scores:{Model:3,Agent:3,Platform:3,Identity:3,ShadowAI:3}},
-{name:"Ovalix",color:"#14B8A6",scores:{Model:3,Agent:4,Platform:4,Identity:3,ShadowAI:4}}
+{name:"Straiker",color:"#F43F5E",scores:{Model:4,Agent:4,Platform:3,Identity:2,ShadowAI:3}},
+{name:"MS Agent 365",color:"#3B82F6",scores:{Model:3,Agent:4,Platform:5,Identity:5,ShadowAI:3}},
+{name:"Noma Security",color:"#4ADE80",scores:{Model:4,Agent:4,Platform:4,Identity:3,ShadowAI:3}},
+{name:"Palo Alto Prisma AIRS",color:"#C084FC",scores:{Model:5,Agent:4,Platform:5,Identity:4,ShadowAI:3}},
+{name:"CrowdStrike AIDR",color:"#F472B6",scores:{Model:4,Agent:3,Platform:3,Identity:2,ShadowAI:5}},
+{name:"SentinelOne",color:"#22D3EE",scores:{Model:5,Agent:4,Platform:3,Identity:2,ShadowAI:3}},
+{name:"Onyx Security",color:"#A3E635",scores:{Model:1,Agent:5,Platform:2,Identity:5,ShadowAI:2}},
+{name:"Airia",color:"#818CF8",scores:{Model:3,Agent:4,Platform:4,Identity:3,ShadowAI:4}},
+{name:"Akto",color:"#2DD4BF",scores:{Model:3,Agent:3,Platform:5,Identity:2,ShadowAI:3}}
 ];
 
 var layers=["Model","Agent","Platform","Identity","ShadowAI"];
@@ -253,18 +252,17 @@ var domainDesc={
 };
 
 var vendorSpecialty={
-"Zenity":"Agent 행동 분석 + LCNC 자동화 보안 특화",
-"Straiker":"AI/ML 모델 보호 + Runtime Defense",
-"Noma Security":"AI Model Lifecycle + 데이터 보안 중심",
-"Grip Security":"SaaS Discovery + Shadow IT/AI 가시성",
-"MS Agent 365":"Microsoft 생태계 통합 + Copilot 보안",
-"Akto":"API Security Posture 특화",
-"HiddenLayer":"ML Model 보안 + Adversarial 방어",
-"QuilrAI":"Shadow AI + Browser-level Prompt DLP",
-"Pillar Security":"End-to-End AI 보안 플랫폼",
-"Valence Security":"SaaS Posture + Identity Governance",
-"Sun Security":"균형있는 일반 AI 보안",
-"Ovalix":"AI App + Shadow AI 통합 가시성 + Runtime Control 지향"
+"Zenity":"Agent 거버넌스 + Runtime 정책 집행(AI-DFIR) 특화",
+"Grip Security":"Identity-First SSPM - Shadow SaaS/AI 발견 + 자동 원격 조치",
+"Straiker":"Discover-Ascend-Defend: Agent/MCP 적대적 레드팀 + Runtime 방어",
+"MS Agent 365":"Entra Agent ID 기반 Agent 전용 Control Plane - Registry/Access/Security 통합",
+"Noma Security":"AI-SPM + Access Control + Red Teaming + AI-DR 통합 4-in-1 플랫폼",
+"Palo Alto Prisma AIRS":"Protect AI + Koi Security + Portkey 인수 통합 - Model Scan부터 Agentic Endpoint, AI Gateway까지 풀스택",
+"CrowdStrike AIDR":"Falcon AI Detection and Response - Prompt 계층 가시성부터 Shadow AI 거버넌스까지",
+"SentinelOne":"Prompt Security 인수 기반 Prompt/MCP 방어 + Purple AI 연계",
+"Onyx Security":"Onyx Guardian Agent - 자율 Agent를 위한 IAM형 행동 거버넌스",
+"Airia":"Orchestration + Governance + Security 통합 엔터프라이즈 AI 플랫폼",
+"Akto":"API 보안에서 피벗한 Agentic Security Platform - LLM/MCP/Agent 종합 테스트"
 };
 
 var extCapabilities={
@@ -277,149 +275,135 @@ var extCapabilities={
 
 var vendorBadges={
 "Zenity":[],
-"Straiker":["Browser"],
-"Noma Security":["MLOps","DLP"],
 "Grip Security":["SaaS"],
+"Straiker":[],
 "MS Agent 365":["DLP","SaaS"],
-"Akto":["API"],
-"HiddenLayer":["MLOps"],
-"QuilrAI":["Browser","DLP"],
-"Pillar Security":[],
-"Valence Security":["SaaS","DLP"],
-"Sun Security":[],
-"Ovalix":["SaaS","DLP","Browser"]
+"Noma Security":["MLOps","DLP"],
+"Palo Alto Prisma AIRS":["MLOps","API"],
+"CrowdStrike AIDR":["Browser","DLP"],
+"SentinelOne":["API"],
+"Onyx Security":[],
+"Airia":["SaaS","DLP"],
+"Akto":["API"]
 };
 
 var vendorExtRationale={
-"Straiker":{
-Browser:{type:["pos","neu"],bullets:["<strong>브라우저 Telemetry 기반 사용자 행동 추적</strong>","웹 기반 AI 사용 모니터링 기능 제공"]}
-},
-"Noma Security":{
-MLOps:{type:["pos","pos"],bullets:["<strong>ML 학습/배포 파이프라인 보안</strong>","Model Registry, Training Data 검증"]},
-DLP:{type:["pos","neu"],bullets:["<strong>AI 데이터 분류 및 흐름 추적</strong>","민감 데이터 라이프사이클 관리"]}
-},
 "Grip Security":{
-SaaS:{type:["pos","pos"],bullets:["<strong>SaaS Discovery 엔진 강점</strong>","Shadow IT/SaaS 섀도 발견 + OAuth 앱 위험 등급화"]}
+SaaS:{type:["pos","pos"],bullets:["<strong>Agentless Identity 신호 기반 SaaS Discovery 시장 선도</strong>","OAuth Grant 자동 회수 등 SSPM 자동 조치 강함"]}
 },
 "MS Agent 365":{
-DLP:{type:["pos","pos"],bullets:["<strong>Purview Information Protection 네이티브 통합</strong>","민감 데이터 자동 분류 + 정책 기반 차단"]},
-SaaS:{type:["pos","neu"],bullets:["<strong>Defender for Cloud Apps로 SaaS Posture 관리</strong>","Microsoft 생태계 내 SaaS 통합 강함"]}
+DLP:{type:["pos","pos"],bullets:["<strong>Purview Information Protection 네이티브 연계로 민감 데이터 자동 분류</strong>","정책 기반 Agent 출력 차단"]},
+SaaS:{type:["pos","neu"],bullets:["<strong>Defender for Cloud Apps로 SaaS Posture 통합 관리</strong>","MS 생태계 밖 SaaS는 가시성 제한적"]}
+},
+"Noma Security":{
+MLOps:{type:["pos","pos"],bullets:["<strong>AI-SPM으로 모델 레지스트리/학습 데이터 취약점 스캔</strong>","배포 파이프라인 보안 점검 포함"]},
+DLP:{type:["pos","neu"],bullets:["<strong>AI 관련 민감 데이터 흐름 추적</strong>","AI-DR과 연계한 런타임 데이터 유출 탐지"]}
+},
+"Palo Alto Prisma AIRS":{
+MLOps:{type:["pos","pos"],bullets:["<strong>Protect AI 인수로 확보한 모델 스캐닝 - 업계 최대 규모 MLOps 보안 커버리지</strong>","모델 저장소/학습 파이프라인 취약점 스캔"]},
+API:{type:["pos","pos"],bullets:["<strong>Portkey AI Gateway 기반 API 트래픽 심층 검사</strong>","AI Observability로 API 호출 패턴 분석"]}
+},
+"CrowdStrike AIDR":{
+Browser:{type:["pos","pos"],bullets:["<strong>Chrome/Edge/Firefox 확장 기반 전사 AI 사용 실시간 통제 핵심</strong>","브라우저 레벨 Prompt 유출 차단"]},
+DLP:{type:["pos","neu"],bullets:["<strong>모델 도달 전 민감정보 마스킹/암호화</strong>","데이터 보호 정책을 Falcon 콘솔에서 통합 관리"]}
+},
+"SentinelOne":{
+API:{type:["pos","neu"],bullets:["<strong>MCP Gateway가 13,000개 이상 MCP 서버 트래픽을 프록시/스코어링</strong>","API 수준 위험 평가는 MCP 중심으로 한정"]}
+},
+"Airia":{
+SaaS:{type:["pos","neu"],bullets:["<strong>Copilot/Bedrock/Salesforce/n8n Cross-Platform Discovery</strong>","SaaS Posture 심층 스캔보다는 AI 사용 발견에 초점"]},
+DLP:{type:["pos","neu"],bullets:["<strong>Runtime Data Leakage Controls로 민감정보 이동 제한</strong>","컴플라이언스 매핑(EU AI Act 등)과 연계"]}
 },
 "Akto":{
-API:{type:["pos","pos"],bullets:["<strong>API Discovery/Posture/Testing 특화</strong>","Shadow API, Zombie API 자동 식별 + 취약점 테스트"]}
-},
-"HiddenLayer":{
-MLOps:{type:["pos","pos"],bullets:["<strong>Model Scanner 기반 ML 파이프라인 보안</strong>","학습/배포 단계에서 모델 위협 자동 탐지"]}
-},
-"QuilrAI":{
-Browser:{type:["pos","pos"],bullets:["<strong>Browser Extension 기반 실시간 통제 핵심</strong>","모든 웹 AI 서비스에 대한 Prompt-level 통제"]},
-DLP:{type:["pos","neu"],bullets:["<strong>Prompt-level DLP 매우 강함</strong>","외부 AI 입력 데이터 마스킹/차단"]}
-},
-"Valence Security":{
-SaaS:{type:["pos","pos"],bullets:["<strong>SSPM 핵심 영역</strong>","SaaS App Risk 자동 평가 + 정책 적용"]},
-DLP:{type:["pos","neu"],bullets:["<strong>SaaS 내 민감 데이터 흐름 가시화</strong>","Identity-aware DLP 정책 연계"]}
-},
-"Ovalix":{
-SaaS:{type:["pos","neu"],bullets:["<strong>SaaS 기반 AI 사용 가시성 확보</strong>","외부 AI 서비스 연동 추적 중심"]},
-DLP:{type:["pos","neu"],bullets:["<strong>AI 데이터 흐름 제어 및 민감정보 보호</strong>","Prompt 단위 통제 일부 지원"]},
-Browser:{type:["pos","pos"],bullets:["<strong>브라우저 기반 AI 접근 통제</strong>","<strong>Shadow AI 실시간 탐지 및 차단</strong>"]}
+API:{type:["pos","pos"],bullets:["<strong>API Discovery/Shadow API 탐지 시장 검증 기술을 AI 계층까지 확장한 원조 강점</strong>","Zombie API/AI Endpoint 자동 식별"]}
 }
 };
 
 var vendorRationale={
 "Zenity":{
-Model:{type:["neg","neg","neu"],bullets:["<strong>모델 자체 방어 부여</strong>: Adversarial Attack 직접 대응 X","<strong>Hallucination 검증 약함</strong>","Output 단계 일부 민감정보 탐지"]},
-Agent:{type:["pos","pos","pos"],bullets:["<strong>Agent Runtime 추적 핵심 차별점</strong>","<strong>Goal Hijack 탐지 강함</strong>","Excessive Agency 통제 + HITL 워크플로"]},
-Platform:{type:["pos","pos","neu"],bullets:["<strong>Copilot Studio/Power Platform 통합</strong>","<strong>Connector/Flow 가시화 매우 강함</strong>","Plugin Supply Chain 검증 한정적"]},
-Identity:{type:["pos","neg","neg"],bullets:["<strong>Agent 자격증명 Runtime 추적</strong>","<strong>NHI Inventory 관리 부여</strong>","Secret Rotation, Offboarding 미지원"]},
-ShadowAI:{type:["neg","neg","neg"],bullets:["<strong>Enterprise AI Scope에 한정</strong>","<strong>개인 ChatGPT 사용 탐지 불가</strong>","Shadow AI는 CASB 영역 보완 필요"]}
-},
-"Straiker":{
-Model:{type:["pos","pos","neu"],bullets:["<strong>Adversarial Attack 방어 특화</strong>","<strong>Runtime Model Protection</strong>","Model Extraction 탐지 부분 지원"]},
-Agent:{type:["pos","pos","neu"],bullets:["<strong>Agent Runtime Guardrail 제공</strong>","Memory Poisoning 일부 탐지","LCNC 환경 통합 약함"]},
-Platform:{type:["neu","neu","neg"],bullets:["AI App 보안 일부 지원","<strong>SaaS/LCNC 통합 약함</strong>","Plugin Supply Chain 검증 한정적"]},
-Identity:{type:["neg","neg","neg"],bullets:["<strong>NHI Inventory 영역 약함</strong>","Prompt 응답 내 일부만 탐지","Identity Lifecycle 미지원"]},
-ShadowAI:{type:["pos","neu","neu"],bullets:["<strong>브라우저 Telemetry 기반 외부 AI 사용 일부 식별</strong>","Prompt-level DLP 부분 차단","CASB 수준 못 미침"]}
-},
-"Noma Security":{
-Model:{type:["pos","pos","pos"],bullets:["<strong>AI/ML 모델 보호 핵심</strong>","<strong>Data Poisoning 탐지 강함</strong>","MLOps 파이프라인 통합"]},
-Agent:{type:["pos","pos","neu"],bullets:["Agent Runtime 모니터링","Prompt Injection 일부 탐지","LCNC 통합 보조적"]},
-Platform:{type:["neu","neu","neg"],bullets:["<strong>MLOps 환경 중심</strong>","Copilot Studio 통합 약함","API Discovery 보조 수준"]},
-Identity:{type:["neu","neu","neg"],bullets:["Service Account 일부 가시화","AI 자격증명은 한정적","전체 NHI Lifecycle 부여"]},
-ShadowAI:{type:["neu","neg","neg"],bullets:["AI Inventory 일부 가능","<strong>실시간 차단 약함</strong>","브라우저 기반 탐지 미지원"]}
+Model:{type:["neg","neg","neu"],bullets:["<strong>모델 자체의 Adversarial/Extraction 방어는 제공 X</strong>","Prompt Injection은 Agent 행동 관점에서만 간접 탐지","Output 단계 일부 정책 위반 탐지"]},
+Agent:{type:["pos","pos","pos"],bullets:["<strong>AI-DFIR(디지털 포렌식) 기반 Agent 결정 체인 추적 핵심 차별점</strong>","<strong>Guardian Agents로 정책 지속 강제(Runtime Boundaries) 강함</strong>","Copilot/Agentforce 등 SaaS 관리형 Agent부터 자체 개발 Agent까지 전 구간 커버"]},
+Platform:{type:["pos","pos","neu"],bullets:["<strong>MS Foundry Runtime Enforcement GA(2026.3) - Copilot Studio/Power Platform 통합 강함</strong>","<strong>Surface 기능으로 Connector/Flow 노출 가시화</strong>","Plugin Supply Chain 검증은 제한적"]},
+Identity:{type:["pos","neu","neg"],bullets:["<strong>Agent Identity 및 권한 사용 패턴 추적</strong>","Device 기반 Agent(Cursor/Claude Desktop) 식별 지원","Secret Rotation/Offboarding 등 Lifecycle 자체 관리는 미지원"]},
+ShadowAI:{type:["neg","neg","neu"],bullets:["<strong>Enterprise 관리형/디바이스 기반 Agent 중심 - 개인 브라우저 ChatGPT 사용은 Scope 밖</strong>","SaaS 섀도 Agent 발견은 관리형 앱 범위로 한정","MCP Gateway로 일부 개인 AI 도구 트래픽 가시화"]}
 },
 "Grip Security":{
-Model:{type:["neg","neg","neg"],bullets:["<strong>AI 모델 보안 영역 약함</strong>","Prompt Injection 직접 대응 X","Model Extraction 부여"]},
-Agent:{type:["neg","neg","neu"],bullets:["Agent Runtime 통제 영역 약함","Goal Hijack 탐지 부여","SaaS 사용 패턴 일부 가시화"]},
-Platform:{type:["pos","neu","neg"],bullets:["<strong>SaaS Discovery 기반 LCNC 식별</strong>","Connector 섀도 분류","Plugin 검증 한정적"]},
-Identity:{type:["pos","pos","pos"],bullets:["<strong>NHI/OAuth App 전체 가시화 핵심</strong>","<strong>Service Account Inventory 매우 강함</strong>","Third-party NHI 권한 검토"]},
-ShadowAI:{type:["pos","pos","pos"],bullets:["<strong>SaaS Discovery 기반 Shadow AI 자동 식별</strong>","<strong>개인 ChatGPT 사용 탐지 가능</strong>","Browser Extension 섀도 발견"]}
+Model:{type:["neg","neg","neg"],bullets:["<strong>AI 모델 자체 보안 영역 다루지 않음</strong>","Prompt Injection/Extraction 대응 X","모델 계층 위협은 Scope 밖"]},
+Agent:{type:["neg","neg","neu"],bullets:["Agent 행동/Runtime 통제 기능 없음","Tool Misuse/Goal Hijack 탐지 부재","OAuth 기반 Agent 접근 권한은 Identity 관점에서 일부 포착"]},
+Platform:{type:["neu","neu","pos"],bullets:["SaaS 자동화 앱의 커넥터 권한을 Identity 신호로 간접 파악","Power Platform 등 LCNC 자체 심층 분석은 약함","<strong>OAuth Grant 기반 위험 앱 자동 식별</strong>"]},
+Identity:{type:["pos","pos","pos"],bullets:["<strong>Identity 신호 기반 Agentless SaaS/OAuth App 전체 인벤토리 핵심 강점</strong>","<strong>과도 권한 OAuth Grant 자동 회수/암호 로테이션 등 원격 조치 지원</strong>","Third-party NHI 리스크 등급화 + 역할 변경 시 자동 오프보딩"]},
+ShadowAI:{type:["pos","pos","pos"],bullets:["<strong>Identity/인증 신호 기반 Shadow SaaS+AI 통합 탐지(설정 스캔 아님) 핵심 차별점</strong>","<strong>2025 리포트 기준 AI 도구 91% 미관리, ChatGPT 96% 조직에서 발견</strong>","개인 계정 AI 사용까지 자동 식별 + 즉시 원격 조치"]}
+},
+"Straiker":{
+Model:{type:["pos","pos","neu"],bullets:["<strong>Ascend AI: 67개 이상 통제/10개 이상 공격 카테고리 지속 레드팀</strong>","<strong>OWASP LLM Top 10/MITRE ATLAS 매핑 검증</strong>","Model Extraction은 적대적 테스트 범위 내 부분 커버"]},
+Agent:{type:["pos","pos","pos"],bullets:["<strong>Defend AI Runtime Action Tracing으로 Tool-Chain 위험 실시간 탐지</strong>","<strong>Discover AI: 12,000개 이상 MCP 취약점 DB 기반 Agent/Tool 인벤토리</strong>","98%+ 탐지 정확도 + 300ms 이하 지연(벤더 자체 수치)"]},
+Platform:{type:["neu","neu","neg"],bullets:["Bedrock/Copilot Studio API 연동한 패시브 모니터링 지원","인라인 차단 게이트웨이 배포 옵션 제공","LCNC/SaaS 자동화 자체 심층 통합은 제한적"]},
+Identity:{type:["neg","neg","neg"],bullets:["NHI Inventory/Lifecycle 관리 영역 아님","자격증명 로테이션/오프보딩 미지원","Agent 신원 관리는 Scope 밖"]},
+ShadowAI:{type:["neu","neu","neg"],bullets:["Data Exfiltration Prevention으로 민감정보 유출 일부 차단","Agent/MCP 사용 흐름 가시화는 Enterprise 배포 Agent 중심","개인 브라우저 기반 Shadow AI 탐지는 미지원"]}
 },
 "MS Agent 365":{
-Model:{type:["pos","pos","neu"],bullets:["<strong>Azure AI Content Safety + Defender 연계</strong>","Prompt Shield로 Injection 차단","Model Extraction은 Azure OpenAI 한정"]},
-Agent:{type:["pos","pos","neu"],bullets:["<strong>Copilot 보안 네이티브 통합</strong>","Purview 데이터 분류 연계","타사 Agent 통합 한정적"]},
-Platform:{type:["pos","pos","pos"],bullets:["<strong>M365/Power Platform 네이티브 통합 최고</strong>","Connector 통제 매우 강함","MS 생태계 외부는 약함"]},
-Identity:{type:["pos","pos","pos"],bullets:["<strong>Entra ID 기반 NHI 통합 관리</strong>","Managed Identity 자동 관리","Conditional Access JIT 강함"]},
-ShadowAI:{type:["pos","neu","neg"],bullets:["<strong>Defender for Cloud Apps로 일부 탐지</strong>","개인 계정 추적 한정적","Edge for Business에 의존"]}
+Model:{type:["neu","pos","neu"],bullets:["Azure AI Content Safety/Prompt Shield와 연계한 Injection 차단","<strong>Defender 통합으로 모델 입출력 위협 탐지</strong>","타사 LLM(OpenAI API 직접 호출 등)에는 커버리지 제한적"]},
+Agent:{type:["pos","pos","neu"],bullets:["<strong>Entra Agent ID로 모든 Agent에 고유 신원 부여 - Registry에서 전사 Agent 목록화</strong>","<strong>Conditional Access 정책을 Agent 행동에도 동일 적용</strong>","타사 플랫폼(AWS/GCP) Agent는 가시성 위주, 심층 Runtime 제어는 제한적"]},
+Platform:{type:["pos","pos","pos"],bullets:["<strong>Vendor-Agnostic Control Plane - MS/AWS/GCP/Adobe/Databricks/ServiceNow/SAP Agent까지 통합 거버넌스</strong>","<strong>Copilot Studio/Power Platform 등 MS 생태계 네이티브 통합 최고 수준</strong>","Interoperability 계층으로 타 플랫폼 Agent 간 상호운용 지원"]},
+Identity:{type:["pos","pos","pos"],bullets:["<strong>Entra Agent ID - Agent를 1급 시민(First-class Identity)으로 관리하는 핵심 차별점</strong>","<strong>Conditional Access, 라이프사이클 자동화(생성-권한부여-폐기) 전 구간 지원</strong>","Purview/Defender와 연계한 Agent 자격증명 통합 가시성"]},
+ShadowAI:{type:["neu","neu","neg"],bullets:["Defender for Cloud Apps로 미승인 SaaS/AI 사용 일부 탐지","Edge for Business 브라우저 사용에 의존적","비-MS 생태계에서의 개인 AI 사용 탐지는 제한적"]}
+},
+"Noma Security":{
+Model:{type:["pos","pos","pos"],bullets:["<strong>AI-SPM으로 Bedrock/Azure OpenAI/SageMaker 등 모델 자산·설정 취약점 자동 발견</strong>","<strong>AI Red Teaming으로 배포 전 Prompt Injection/Jailbreak 사전 검증</strong>","Data Poisoning/학습 데이터 무결성 탐지"]},
+Agent:{type:["pos","pos","neu"],bullets:["<strong>AI-DR(런타임 탐지·대응)로 Agent 이상행동 실시간 모니터링</strong>","Copilot Studio/Agentforce 등 SaaS Agent와 자체 개발 Agent 모두 커버","코딩 어시스턴트/MCP 서버 보안은 최근 확장 영역"]},
+Platform:{type:["pos","pos","neu"],bullets:["<strong>80개 이상 통합 - 클라우드 3사 + 주요 SaaS Agent 빌더 광범위 커버</strong>","<strong>AWS Security Hub Extended Plan 정식 편입(2026.2)</strong>","Power Platform 등 MS LCNC 심층 통합은 상대적으로 약함"]},
+Identity:{type:["neu","neu","neg"],bullets:["AI 관련 Service Account/API Key 일부 가시화","Access Control 모듈로 과도 권한 탐지 지원","전체 NHI Lifecycle(회전/폐기 자동화)은 제한적"]},
+ShadowAI:{type:["neu","neg","neg"],bullets:["AI 자산 Inventory 기반 미승인 AI 사용 일부 식별","실시간 브라우저 레벨 차단 기능은 약함","개인 계정 기반 사용 탐지는 부차적 기능"]}
+},
+"Palo Alto Prisma AIRS":{
+Model:{type:["pos","pos","pos"],bullets:["<strong>Protect AI 인수(약 5억 달러, 2025.7 완료)로 모델 스캐닝/AI-SPM 확보 - 업계 최대 규모</strong>","<strong>Portkey AI Gateway로 런타임 트래픽 검사 + AI Observability</strong>","Model Extraction/Data Poisoning 탐지를 스캐너 단계에서 수행"]},
+Agent:{type:["pos","pos","neu"],bullets:["<strong>Koi Security 인수(약 4억 달러, 2026.4 완료) 기반 'Agentic Endpoint Security' - 브라우저 확장/패키지/MCP를 엔드포인트에서 직접 통제</strong>","<strong>Portkey의 'Idira' 기술로 Agent Identity 부여 및 추적</strong>","'Wings' 리스크 엔진으로 Supply Chain 리스크 실시간 평가"]},
+Platform:{type:["pos","pos","pos"],bullets:["<strong>기존 Prisma Cloud/SASE 고객 기반 위에 AI 보안 전 계층을 하나의 플랫폼으로 통합</strong>","<strong>3개 인수(Protect AI/Koi/Portkey)를 Prisma AIRS 단일 브랜드로 재편 - 최광범위 커버리지</strong>","커넥터/API/Supply Chain을 Wings 엔진이 통합 스코어링"]},
+Identity:{type:["pos","pos","neu"],bullets:["<strong>Portkey Idira로 Agent 단위 신원 및 권한 추적</strong>","AI 트래픽 게이트웨이를 통한 자격증명 사용 패턴 가시화","NHI Lifecycle 전 구간 자동화는 통합 초기 단계"]},
+ShadowAI:{type:["neu","neu","pos"],bullets:["엔드포인트(Koi) 기반 브라우저 확장 설치 현황 파악으로 섀도 도구 일부 식별","AI Gateway를 우회하는 개인 기기 사용은 탐지 범위 밖일 수 있음","<strong>브라우저 확장/패키지/데이터셋까지 엔드포인트 레벨 가시성 확보(Koi 강점)</strong>"]}
+},
+"CrowdStrike AIDR":{
+Model:{type:["pos","pos","neu"],bullets:["<strong>Prompt Injection 탐지율 최대 99%(벤더 자체 수치) 실시간 차단</strong>","<strong>민감 데이터 마스킹/암호화를 모델 도달 전 단계에서 수행</strong>","Model Extraction 자체 탐지는 제한적"]},
+Agent:{type:["neu","neu","neu"],bullets:["User-Prompt-Model-Agent-MCP 관계 맵핑으로 Agent 행동 가시화","MCP Proxy로 Tool 호출 흐름 추적","Agent Runtime 심층 개입(정책 강제)은 상대적으로 얕음"]},
+Platform:{type:["neu","neu","neg"],bullets:["AI Gateway 연동을 통한 API/트래픽 가시성 확보","Falcon 플랫폼과의 통합 배포(SDK/브라우저 확장)","Copilot Studio/Power Platform 등 LCNC 심층 통합은 제한적"]},
+Identity:{type:["neg","neg","neu"],bullets:["NHI Lifecycle 관리 기능은 제공하지 않음","Service Account/OAuth App Inventory는 부차적","Agent 신원은 MCP 관계 맵 안에서만 부분 파악"]},
+ShadowAI:{type:["pos","pos","pos"],bullets:["<strong>브라우저 확장(Chrome/Edge/Firefox) 기반 전사 AI 사용 가시성 핵심 강점</strong>","<strong>승인되지 않은 AI 서비스 사용 및 민감정보 입력을 실시간 탐지·차단</strong>","Shadow AI 거버넌스를 Falcon 콘솔에서 통합 관리"]}
+},
+"SentinelOne":{
+Model:{type:["pos","pos","pos"],bullets:["<strong>Prompt Security 인수(2025.9 완료, 약 1.34억 달러+주식)로 주요 LLM 전반의 Prompt Injection/Jailbreak/유출 탐지 확보</strong>","<strong>RSAC 2026에서 'Prompt AI Red Teaming' 신규 공개</strong>","AWS Bedrock AgentCore 런타임 가드레일 통합"]},
+Agent:{type:["pos","pos","neu"],bullets:["<strong>MCP Gateway로 13,000개 이상 알려진 MCP 서버를 프록시하며 동적 위험 스코어링</strong>","<strong>Purple AI(AI SOC 분석가)와 연계해 Agent 위협 탐지-대응 자동화</strong>","Goal Hijack/Memory Poisoning 등 세부 행동 통제는 게이트웨이 레벨에 한정"]},
+Platform:{type:["neu","neu","neg"],bullets:["MCP Gateway를 통한 API 트래픽 가시성 확보","Bedrock 등 클라우드 AI 런타임과의 통합 확대 중","Copilot Studio/Power Platform 등 LCNC 통합은 약함"]},
+Identity:{type:["neg","neg","neu"],bullets:["NHI Inventory/Lifecycle 전용 기능 부재","자격증명 로테이션/오프보딩 미지원","MCP 서버 단위 접근 권한은 게이트웨이에서 부분 파악"]},
+ShadowAI:{type:["neu","neu","neu"],bullets:["MCP Gateway가 다루지 않는 순수 브라우저 기반 개인 AI 사용은 별도 커버 필요","Purple AI 콘솔에서 AI 사용 이벤트 통합 조회 가능","전사 Shadow AI 전용 브라우저 확장 통제는 부차적"]}
+},
+"Onyx Security":{
+Model:{type:["neg","neg","neg"],bullets:["모델 자체 방어(Prompt Injection/Extraction) 영역 아님","Hallucination 검증 기능 없음","모델 계층은 Scope 밖"]},
+Agent:{type:["pos","pos","pos"],bullets:["<strong>Guardian Agent가 Agent 행동을 실시간 모니터링하고 위험 액션 차단</strong>","<strong>권한 자동 축소(Least Privilege) 및 Human-in-the-loop 승인 요구 핵심 차별점</strong>","Anthropic이 자사 엔터프라이즈 고객 대상 Onyx 기술 통합 발표(2026.6)"]},
+Platform:{type:["neg","neg","neu"],bullets:["LCNC/SaaS 자동화 플랫폼 심층 통합은 초기 단계","Connector/Supply Chain 위험 분석은 제한적","Agent가 호출하는 API/Tool 목록은 권한 관리 관점에서 일부 파악"]},
+Identity:{type:["pos","pos","pos"],bullets:["<strong>자율 Agent에 IAM과 동등한 신원/권한 거버넌스 최초 적용 - 핵심 포지셔닝</strong>","<strong>과도 권한 자동 탐지 및 축소 적용</strong>","Agent 권한 변경 이력 감사 추적 지원"]},
+ShadowAI:{type:["neg","neg","neg"],bullets:["브라우저 기반 개인 AI 사용 탐지 기능 없음","Enterprise Agent 권한 거버넌스에 집중, Shadow AI 가시성은 부차적","비승인 AI 서비스 자체 탐지는 지원하지 않음"]}
+},
+"Airia":{
+Model:{type:["neu","neu","neg"],bullets:["Runtime Security Enforcement로 Prompt Injection 방어 정책 적용","모델 라우팅 과정에서 일부 안전 필터링 수행","Model Extraction/Hallucination 전용 탐지는 제한적"]},
+Agent:{type:["pos","pos","neu"],bullets:["<strong>Tool Misuse 방지 및 Runtime 정책 강제</strong>","<strong>A2A/MCP 프로토콜 거버넌스로 Agent 간 통신 통제</strong>","Memory Poisoning 세부 탐지는 상대적으로 약함"]},
+Platform:{type:["pos","pos","neu"],bullets:["<strong>Copilot/Bedrock/Salesforce/n8n 등 Cross-Platform Discovery로 여러 자동화 플랫폼 통합 가시화</strong>","<strong>RBAC + EU AI Act/NIST AI RMF/HIPAA/ISO 42001/SOC 2 컴플라이언스 매핑</strong>","Model Routing 기능은 보안보다 오케스트레이션에 더 초점"]},
+Identity:{type:["neu","neu","neg"],bullets:["RBAC 기반 Agent/사용자 권한 관리 지원","Cross-Platform Discovery로 Agent 신원 일부 파악","NHI Lifecycle 자동화(로테이션/오프보딩)는 제한적"]},
+ShadowAI:{type:["pos","pos","neu"],bullets:["<strong>여러 플랫폼(Copilot/Bedrock/Salesforce/n8n)에 흩어진 Shadow AI 사용 통합 발견</strong>","<strong>데이터 유출 통제(Data Leakage Controls)로 민감정보 이동 제한</strong>","개인 브라우저 기반 사용 탐지는 플랫폼 연동 범위로 한정"]}
 },
 "Akto":{
-Model:{type:["neg","neg","neg"],bullets:["<strong>Model 자체 보안 영역 약함</strong>","Prompt Injection 직접 대응 X","API 보안에 집중"]},
-Agent:{type:["neg","neg","neg"],bullets:["Agent 행동 분석 한정적","Goal Hijack 탐지 부여","API Call 분석에 국한"]},
-Platform:{type:["pos","pos","pos"],bullets:["<strong>API Discovery/Posture 매우 강함</strong>","Shadow API 자동 식별","API DLP 정책 적용"]},
-Identity:{type:["neu","neu","neg"],bullets:["API Key Inventory 부분 제공","API 호출 권한 분석","NHI Lifecycle 부여"]},
-ShadowAI:{type:["neu","neg","neg"],bullets:["Shadow API 식별 강함","<strong>외부 AI 사용 행위 탐지 약함</strong>","브라우저 기반 탐지 부여"]}
-},
-"HiddenLayer":{
-Model:{type:["pos","pos","pos"],bullets:["<strong>ML Model 보안 최고 수준</strong>","<strong>Adversarial/Model Theft 방어 특화</strong>","Model Scanner 자동 탐지"]},
-Agent:{type:["neu","neu","neg"],bullets:["Agent Runtime 보조 수준","Tool Misuse 일부 탐지","Agentic Workflow 한정적"]},
-Platform:{type:["neg","neg","neg"],bullets:["<strong>MLOps 중심, Copilot 미커버</strong>","SaaS Discovery 영역 약함","API 보안 약함"]},
-Identity:{type:["neg","neg","neg"],bullets:["<strong>Identity 영역 다루지 않음</strong>","NHI Inventory 미지원","Secret Leakage 부여"]},
-ShadowAI:{type:["neg","neg","neg"],bullets:["<strong>Shadow AI 탐지 영역 약함</strong>","사용자 행위 모니터링 부여","ML Lifecycle에만 집중"]}
-},
-"QuilrAI":{
-Model:{type:["neg","neg","neg"],bullets:["Model 자체 보안 약함","Runtime 방어 한정적","Hallucination 검증 미지원"]},
-Agent:{type:["neu","neu","neg"],bullets:["AI 사용 행위 일부 분석","Prompt 단위 통제 가능","Tool Misuse 통제 약함"]},
-Platform:{type:["neg","neg","neg"],bullets:["Enterprise AI App 한정적","Copilot Studio 통합 부여","API Discovery 영역 약함"]},
-Identity:{type:["neg","neg","neg"],bullets:["NHI 관리 영역 약함","Prompt 차원만 Secret 탐지","Lifecycle 부여"]},
-ShadowAI:{type:["pos","pos","pos"],bullets:["<strong>Browser Extension 기반 실시간 통제</strong>","<strong>Prompt-level DLP 매우 강함</strong>","개인 AI 데이터 마스킹 + 사용자 코칭"]}
-},
-"Pillar Security":{
-Model:{type:["pos","pos","pos"],bullets:["<strong>AI Posture + Model 보안 통합</strong>","Prompt Injection, Jailbreak 모두 탐지","AI Asset Inventory 기반 위험 평가"]},
-Agent:{type:["pos","pos","neu"],bullets:["<strong>End-to-End Agent Runtime 보안</strong>","Goal Hijack, Tool Misuse 탐지","LCNC 통합 보조적"]},
-Platform:{type:["neu","neu","neu"],bullets:["AI App 환경 보안 일반","Connector 통제 일부","Supply Chain 보조"]},
-Identity:{type:["neu","neu","neg"],bullets:["AI 관련 자격증명 일부 식별","Service Account 부분 지원","NHI Lifecycle 부여"]},
-ShadowAI:{type:["neu","neu","neg"],bullets:["AI 사용 Inventory 일부","외부 AI 사용 일부 가시화","실시간 차단 약함"]}
-},
-"Valence Security":{
-Model:{type:["neg","neg","neg"],bullets:["<strong>Model 보안 영역 약함</strong>","Prompt Injection 직접 대응 X","Data Poisoning 미커버"]},
-Agent:{type:["neg","neg","neg"],bullets:["Agent 행동 통제 영역 약함","SaaS 자동화 일부 가시화","Goal Hijack 탐지 부여"]},
-Platform:{type:["pos","pos","neu"],bullets:["<strong>SaaS Posture Management 강함</strong>","SaaS App Risk 자동 평가","AI LCNC 보조적"]},
-Identity:{type:["pos","pos","pos"],bullets:["<strong>OAuth App/NHI Lifecycle 핵심</strong>","<strong>Third-party 권한 자동 검토</strong>","Identity Governance 연계"]},
-ShadowAI:{type:["pos","pos","neu"],bullets:["<strong>SaaS Discovery로 Shadow AI 가시화</strong>","OAuth 기반 AI 연동 탐지","브라우저 직접 통제 약함"]}
-},
-"Sun Security":{
-Model:{type:["neu","neu","neu"],bullets:["범용 AI 보안 평균","Prompt Injection 기본 탐지","특화 기능 부여"]},
-Agent:{type:["neu","neu","neu"],bullets:["Agent 모니터링 일반","Tool Misuse 기본 탐지","Runtime 추적 보조"]},
-Platform:{type:["neu","neu","neu"],bullets:["Platform 보안 일반","Connector 통제 기본","Supply Chain 보조"]},
-Identity:{type:["neu","neu","neu"],bullets:["Identity 보안 일반","NHI Inventory 기본","Secret Leakage 탐지 보조"]},
-ShadowAI:{type:["neu","neu","neu"],bullets:["Shadow AI 일반 수준","AI 사용 가시화 기본","통제 기능 보조"]}
-},
-"Ovalix":{
-Model:{type:["neu","neu","neg"],bullets:["<strong>모델 자체 방어 기능 제한</strong>","Prompt 기반 일부 위협 탐지","Model Extraction 대응 약함"]},
-Agent:{type:["pos","pos","neu"],bullets:["<strong>Agent 실행 흐름 가시화</strong>","<strong>행동 기반 정책 통제 지원</strong>","Deep Runtime Instrumentation 제한"]},
-Platform:{type:["pos","pos","neu"],bullets:["<strong>SaaS/AI App 사용 흐름 분석 강점</strong>","<strong>AI 서비스 연동 가시화</strong>","Plugin Supply Chain 분석 제한"]},
-Identity:{type:["neu","neu","neg"],bullets:["AI 사용 계정 일부 추적","OAuth/App 권한 일부 분석","<strong>NHI Lifecycle 관리 미흡</strong>"]},
-ShadowAI:{type:["pos","pos","pos"],bullets:["<strong>Shadow AI 탐지 핵심 강점</strong>","<strong>브라우저 기반 실시간 통제</strong>","외부 AI 사용 가시성 매우 높음"]}
+Model:{type:["neu","neu","neg"],bullets:["60개 이상 자동화된 LLM/OWASP Top 10 테스트 케이스로 모델 응답 취약점 점검","1,000개 이상 Exploit 테스트로 Prompt Injection 등 실제 공격 시뮬레이션","Hallucination 등 정성적 품질 이슈는 커버 범위 밖"]},
+Agent:{type:["pos","neu","neu"],bullets:["<strong>MCP/Agent 자동 발견 및 Agentic Posture Management 신규 기능(2025.9~)</strong>","OWASP ASI(Agentic Security Initiative) 매핑 가드레일 제공","Runtime 개입(차단)보다 테스트/포스처 관리 중심"]},
+Platform:{type:["pos","pos","pos"],bullets:["<strong>API Discovery/Shadow API/Zombie API 탐지에서 시장 검증된 강점을 AI 계층까지 확장</strong>","<strong>엔드포인트 레벨 AI/MCP/LLM 트래픽 추적(2026.2~7 기능 확대) - MS Defender for Endpoint 연동</strong>","EU AI Act 컴플라이언스 매핑 지원"]},
+Identity:{type:["neg","neg","neg"],bullets:["NHI/API Key Inventory는 API 보안 관점의 부차적 기능","Agent 신원 관리 전용 기능 없음","Lifecycle 자동화(로테이션/오프보딩) 미지원"]},
+ShadowAI:{type:["neu","neg","neg"],bullets:["엔드포인트 기반 미승인 LLM/MCP 사용 흔적 일부 탐지","브라우저 레벨 실시간 차단 기능은 약함","개인 계정 기반 사용 통제는 Scope 밖"]}
 }
 };
 
 var vendorClusters=[
-{name:"Agent + Platform Specialists",trait:"// Agent 행동 보안 + LCNC/SaaS 자동화 통합 강함, Shadow AI는 약함",members:["Zenity","MS Agent 365"],pattern:{Model:3.0,Agent:4.5,Platform:4.5,Identity:3.5,ShadowAI:2.0}},
-{name:"Model Security Powerhouses",trait:"// AI/ML 모델 자체 보호, Adversarial 방어 특화, Identity 영역 약함",members:["HiddenLayer","Pillar Security","Noma Security","Straiker"],pattern:{Model:4.75,Agent:3.75,Platform:2.75,Identity:2.5,ShadowAI:2.25}},
-{name:"Identity + Shadow AI Defenders",trait:"// NHI/SaaS Governance + Shadow AI 가시성 강함, Model 영역 약함",members:["Grip Security","Valence Security","Ovalix"],pattern:{Model:1.7,Agent:2.7,Platform:3.7,Identity:4.3,ShadowAI:4.3}},
-{name:"Shadow AI Browser-Level Focus",trait:"// Browser/Prompt-level Shadow AI 통제 특화",members:["QuilrAI","Ovalix"],pattern:{Model:2.5,Agent:3.5,Platform:3.0,Identity:2.5,ShadowAI:4.5}},
-{name:"API-First Platform Specialist",trait:"// API Security Posture 특화",members:["Akto"],pattern:{Model:2.0,Agent:2.0,Platform:5.0,Identity:3.0,ShadowAI:2.0}},
-{name:"Balanced Generalist",trait:"// 모든 Layer를 평균 수준으로 균형 있게 커버",members:["Sun Security"],pattern:{Model:3.0,Agent:3.0,Platform:3.0,Identity:3.0,ShadowAI:3.0}}
+{name:"Agent Behavior & Runtime Defense",trait:"// Agent 행동/Runtime 방어에 강점, Identity/Shadow AI 거버넌스는 상대적으로 약함",members:["Zenity","Straiker","Noma Security"],pattern:{Model:3.33,Agent:4.33,Platform:3.67,Identity:2.67,ShadowAI:2.67}},
+{name:"Identity & Agent Governance (IAM-for-Agents)",trait:"// Agent/NHI에 IAM 수준 거버넌스 적용, 모델 자체 방어는 약함",members:["Grip Security","MS Agent 365","Onyx Security"],pattern:{Model:1.67,Agent:3.67,Platform:3.33,Identity:5.0,ShadowAI:3.33}},
+{name:"Platform Giants - Converged AI Security Suites",trait:"// 대형 보안 플랫폼의 인수 기반 AI 보안 확장 - Model/Platform 전방위 강함",members:["Palo Alto Prisma AIRS","CrowdStrike AIDR","SentinelOne"],pattern:{Model:4.67,Agent:3.67,Platform:3.67,Identity:2.67,ShadowAI:3.67}},
+{name:"Automation/API-Adjacent Builders",trait:"// 오케스트레이션/API 계층에서 AI 자산을 발견하고 보호, Identity는 부차적",members:["Airia","Akto"],pattern:{Model:3.0,Agent:3.5,Platform:4.5,Identity:2.5,ShadowAI:3.5}}
 ];
 
 vendors.forEach(function(v){
@@ -455,7 +439,7 @@ function buildLayout(){
 document.getElementById("root").innerHTML=
 '<div class="hero">'+
 '<div><h1>AI SECURITY <span class="accent">VENDOR MAP</span></h1><p>// Layer x Threat Domain Coverage Assessment</p></div>'+
-'<div style="text-align:right;"><div class="badge">AX SECURITY PIVOT TF</div><div style="margin-top:10px;font-size:12px;color:#5A6478;">// 12 vendors / 5 layers / 20 domains + Extended</div></div>'+
+'<div style="text-align:right;"><div class="badge">AX SECURITY PIVOT TF</div><div style="margin-top:10px;font-size:12px;color:#5A6478;">// 11 vendors / 5 layers / 20 domains + Extended</div></div>'+
 '</div>'+
 section("01","Vendor Selection","// 다중 선택 가능")+
 '<div class="control-panel"><div class="control-row"><span class="control-label">// Selected vendors</span><button class="reset-btn" id="resetBtn">Reset</button></div><div class="vendor-chips" id="vendorChips"></div></div>'+
