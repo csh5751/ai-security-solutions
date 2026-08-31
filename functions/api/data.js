@@ -73,11 +73,37 @@ export async function onRequestPut(context) {
     return json({ error: "invalid request body" }, 400);
   }
 
-  if (!body || !body.vendorName) {
-    return json({ error: "vendorName is required" }, 400);
+  if (!body || (!body.vendorName && !Array.isArray(body.reorder))) {
+    return json({ error: "vendorName or reorder is required" }, 400);
   }
 
   var doc = await loadDoc(kv);
+
+  if (Array.isArray(body.reorder)) {
+    var currentNames = doc.pocVendors.map(function (v) { return v.name; });
+    var sameSet =
+      body.reorder.length === currentNames.length &&
+      currentNames.every(function (n) { return body.reorder.indexOf(n) !== -1; }) &&
+      body.reorder.every(function (n) { return currentNames.indexOf(n) !== -1; });
+    if (!sameSet) {
+      return json({ error: "reorder must contain exactly the current vendor names" }, 400);
+    }
+    var byName = {};
+    doc.pocVendors.forEach(function (v) { byName[v.name] = v; });
+    doc.pocVendors = body.reorder.map(function (n) { return byName[n]; });
+
+    var reorderToday = new Date().toISOString().slice(0, 10);
+    doc.recentUpdates.unshift({
+      date: reorderToday,
+      vendor: "System",
+      message: "벤더 순서 변경"
+    });
+    doc.recentUpdates = doc.recentUpdates.slice(0, 20);
+
+    await kv.put(KV_KEY, JSON.stringify(doc));
+    return json(doc);
+  }
+
   var vendor = null;
   for (var i = 0; i < doc.pocVendors.length; i++) {
     if (doc.pocVendors[i].name === body.vendorName) {

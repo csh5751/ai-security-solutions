@@ -11,6 +11,7 @@ var statusLabels={
 var statusFilters=["all","on-track","delayed","blocked","completed","not-started","pending","cancelled"];
 var progressFilter="all";
 var dataSource="fallback";
+var sortState={field:null,dir:null};
 
 var editMode=false;
 var editToken=null;
@@ -70,6 +71,41 @@ html+='<span class="pl-item"><span class="pl-num">'+(idx+1)+'</span>'+p+'</span>
 });
 html+='</div>';
 return html;
+}
+
+function sortArrowHtml(field){
+if(sortState.field!==field)return '<span class="sort-arrow"></span>';
+return '<span class="sort-arrow active">'+(sortState.dir==="asc"?"▲":"▼")+'</span>';
+}
+
+function onSortClick(field){
+if(sortState.field!==field){
+sortState.field=field;
+sortState.dir="asc";
+}else if(sortState.dir==="asc"){
+sortState.dir="desc";
+}else{
+sortState.field=null;
+sortState.dir=null;
+}
+renderProgress();
+}
+
+function sortedVendors(list){
+if(!sortState.field)return list;
+var field=sortState.field;
+var dir=sortState.dir;
+var copy=list.slice();
+copy.sort(function(a,b){
+var av=a[field],bv=b[field];
+if(field==="status"){av=statusLabels[av]||av;bv=statusLabels[bv]||bv;}
+if(typeof av==="string")av=av.toLowerCase();
+if(typeof bv==="string")bv=bv.toLowerCase();
+if(av<bv)return dir==="asc"?-1:1;
+if(av>bv)return dir==="asc"?1:-1;
+return 0;
+});
+return copy;
 }
 
 function daysBetween(a,b){
@@ -134,14 +170,19 @@ statusFilters.forEach(function(f){
 var label=f==="all"?"전체":statusLabels[f];
 html+='<span class="filter-chip'+(f===progressFilter?' active':'')+'" data-filter="'+f+'">'+label+'</span>';
 });
-html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;"><span id="editLoginBox" style="display:none;gap:8px;align-items:center;"></span><button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
+html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;"><span id="reorderStatus" class="edit-save-status"></span><span id="editLoginBox" style="display:none;gap:8px;align-items:center;"></span><button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
 html+='</div>';
 
 html+=phaseLegendHtml();
 
-html+='<div class="progress-table-wrap"><table class="progress-matrix"><thead><tr><th>Vendor</th>';
+html+='<div class="progress-table-wrap"><table class="progress-matrix"><thead><tr>';
+html+='<th class="sortable-th" data-sort="name">Vendor'+sortArrowHtml("name")+'</th>';
 pocPhases.forEach(function(p,idx){html+='<th class="phase-th" title="'+escapeAttr(p)+'">'+(idx+1)+'</th>';});
-html+='<th>Status</th><th>진행률</th><th>담당자</th><th>완료예정일</th><th>메모</th></tr></thead><tbody id="progressBody"></tbody></table></div>';
+html+='<th class="sortable-th" data-sort="status">Status'+sortArrowHtml("status")+'</th>';
+html+='<th class="sortable-th" data-sort="progressPct">진행률'+sortArrowHtml("progressPct")+'</th>';
+html+='<th>담당자</th>';
+html+='<th class="sortable-th" data-sort="dueDate">완료예정일'+sortArrowHtml("dueDate")+'</th>';
+html+='<th>메모</th></tr></thead><tbody id="progressBody"></tbody></table></div>';
 
 root.innerHTML=html;
 renderProgressBody();
@@ -154,6 +195,13 @@ var all=document.querySelectorAll(".filter-chip[data-filter]");
 for(var j=0;j<all.length;j++)all[j].className="filter-chip";
 this.className="filter-chip active";
 renderProgressBody();
+};
+}
+
+var sortThs=document.querySelectorAll(".sortable-th");
+for(var s=0;s<sortThs.length;s++){
+sortThs[s].onclick=function(){
+onSortClick(this.getAttribute("data-sort"));
 };
 }
 
@@ -299,9 +347,14 @@ statusSpan.textContent="저장 실패";
 function renderProgressBody(){
 var tbody=document.getElementById("progressBody");
 var rows=pocVendors.filter(function(v){return progressFilter==="all"||v.status===progressFilter;});
+rows=sortedVendors(rows);
+var dragEnabled=editMode&&progressFilter==="all"&&!sortState.field;
 var html="";
 rows.forEach(function(v){
-html+='<tr><td style="font-weight:700;">'+v.name+'</td>';
+var handleCls="drag-handle"+(dragEnabled?"":" disabled");
+var handleTitle=dragEnabled?"드래그해서 순서 변경":"정렬 해제 후 전체 보기(편집 모드)에서만 순서 변경 가능";
+html+='<tr'+(dragEnabled?' draggable="true"':'')+' data-vendor="'+escapeAttr(v.name)+'">';
+html+='<td style="font-weight:700;"><span class="'+handleCls+'" title="'+handleTitle+'">⠿</span> '+v.name+'</td>';
 pocPhases.forEach(function(p,idx){
 var cls="phase-cell";
 if(v.status==="completed"||idx<v.currentPhaseIndex)cls+=" done";
@@ -315,9 +368,106 @@ html+='<td>'+statusBadge(v.status)+'</td><td>'+progressBar(v.progressPct)+'</td>
 }
 html+='</tr>';
 });
-if(!rows.length)html='<tr><td colspan="'+(pocPhases.length+5)+'" class="report-empty">해당 상태의 벤더가 없습니다.</td></tr>';
+if(!rows.length)html='<tr><td colspan="'+(pocPhases.length+6)+'" class="report-empty">해당 상태의 벤더가 없습니다.</td></tr>';
 tbody.innerHTML=html;
 if(editMode)wireEditableRows();
+wireDragRows();
+}
+
+function wireDragRows(){
+var tbody=document.getElementById("progressBody");
+var rows=tbody.querySelectorAll("tr[draggable='true']");
+var dragSrc=null;
+for(var i=0;i<rows.length;i++){
+rows[i].addEventListener("dragstart",function(e){
+dragSrc=this;
+this.classList.add("dragging");
+if(e.dataTransfer){
+e.dataTransfer.effectAllowed="move";
+try{e.dataTransfer.setData("text/plain",this.getAttribute("data-vendor"));}catch(err){}
+}
+});
+rows[i].addEventListener("dragend",function(){
+this.classList.remove("dragging");
+var all=tbody.querySelectorAll("tr");
+for(var j=0;j<all.length;j++)all[j].classList.remove("drag-over-top","drag-over-bottom");
+dragSrc=null;
+});
+rows[i].addEventListener("dragover",function(e){
+e.preventDefault();
+if(e.dataTransfer)e.dataTransfer.dropEffect="move";
+if(!dragSrc||this===dragSrc)return;
+var rect=this.getBoundingClientRect();
+var midpoint=rect.top+rect.height/2;
+this.classList.remove("drag-over-top","drag-over-bottom");
+if(e.clientY<midpoint)this.classList.add("drag-over-top");
+else this.classList.add("drag-over-bottom");
+});
+rows[i].addEventListener("dragleave",function(){
+this.classList.remove("drag-over-top","drag-over-bottom");
+});
+rows[i].addEventListener("drop",function(e){
+e.preventDefault();
+this.classList.remove("drag-over-top","drag-over-bottom");
+if(!dragSrc||this===dragSrc)return;
+var srcName=dragSrc.getAttribute("data-vendor");
+var targetName=this.getAttribute("data-vendor");
+var rect=this.getBoundingClientRect();
+var midpoint=rect.top+rect.height/2;
+var insertAfter=e.clientY>=midpoint;
+reorderVendors(srcName,targetName,insertAfter);
+});
+}
+}
+
+function reorderVendors(srcName,targetName,insertAfter){
+var srcIdx=-1;
+for(var i=0;i<pocVendors.length;i++){if(pocVendors[i].name===srcName){srcIdx=i;break;}}
+if(srcIdx===-1)return;
+var srcItem=pocVendors[srcIdx];
+pocVendors.splice(srcIdx,1);
+var targetIdx=-1;
+for(var j=0;j<pocVendors.length;j++){if(pocVendors[j].name===targetName){targetIdx=j;break;}}
+if(targetIdx===-1){
+pocVendors.push(srcItem);
+}else{
+var insertIdx=insertAfter?targetIdx+1:targetIdx;
+pocVendors.splice(insertIdx,0,srcItem);
+}
+renderProgressBody();
+saveReorder(pocVendors.map(function(v){return v.name;}));
+}
+
+async function saveReorder(names){
+var statusEl=document.getElementById("reorderStatus");
+if(statusEl)statusEl.textContent="순서 저장 중...";
+try{
+var res=await fetch("/api/data",{
+method:"PUT",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+editToken
+},
+body:JSON.stringify({reorder:names})
+});
+if(res.status===401){
+editToken=null;
+editMode=false;
+try{localStorage.removeItem("pocEditToken")}catch(e){}
+alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
+updateEditToggleLabel();
+renderProgressBody();
+return;
+}
+if(!res.ok)throw new Error("save failed");
+var updated=await res.json();
+applyServerData(updated);
+dataSource="live";
+if(statusEl)statusEl.textContent="순서 저장됨 ✓";
+renderProgressBody();
+}catch(e){
+if(statusEl)statusEl.textContent="순서 저장 실패";
+}
 }
 
 function renderTimeline(){
