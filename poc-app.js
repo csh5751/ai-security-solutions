@@ -232,22 +232,15 @@ if(addBtn)addBtn.onclick=showAddVendorPrompt;
 function onEditToggleClick(){
 if(editMode){
 editMode=false;
-updateEditToggleLabel();
-renderProgressBody();
+renderProgress();
 return;
 }
 if(editToken){
 editMode=true;
-updateEditToggleLabel();
-renderProgressBody();
+renderProgress();
 return;
 }
 showLoginPrompt();
-}
-
-function updateEditToggleLabel(){
-var btn=document.getElementById("editToggleBtn");
-if(btn)btn.textContent=editMode?"편집 모드 끄기":"편집 모드 켜기";
 }
 
 function showLoginPrompt(){
@@ -277,9 +270,7 @@ var data=await res.json();
 editToken=data.token;
 try{localStorage.setItem("pocEditToken",editToken)}catch(e){}
 editMode=true;
-document.getElementById("editLoginBox").style.display="none";
-updateEditToggleLabel();
-renderProgressBody();
+renderProgress();
 }catch(e){
 errEl.textContent="비밀번호가 올바르지 않습니다.";
 }
@@ -322,7 +313,6 @@ editToken=null;
 editMode=false;
 try{localStorage.removeItem("pocEditToken")}catch(e){}
 alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
-updateEditToggleLabel();
 renderProgress();
 return;
 }
@@ -408,8 +398,7 @@ editToken=null;
 editMode=false;
 try{localStorage.removeItem("pocEditToken")}catch(e){}
 alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
-updateEditToggleLabel();
-renderProgressBody();
+renderProgress();
 return;
 }
 if(!res.ok)throw new Error("save failed");
@@ -534,8 +523,7 @@ editToken=null;
 editMode=false;
 try{localStorage.removeItem("pocEditToken")}catch(e){}
 alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
-updateEditToggleLabel();
-renderProgressBody();
+renderProgress();
 return;
 }
 if(!res.ok)throw new Error("save failed");
