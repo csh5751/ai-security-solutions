@@ -8,17 +8,45 @@ var statusLabels={
 
 var statusFilters=["all","on-track","delayed","blocked","completed","not-started"];
 var progressFilter="all";
+var dataSource="fallback";
+
+var editMode=false;
+var editToken=null;
+try{editToken=localStorage.getItem("pocEditToken")}catch(e){}
+
+function applyServerData(d){
+if(!d)return;
+if(d.pocMeta)pocMeta=d.pocMeta;
+if(Array.isArray(d.pocPhases))pocPhases=d.pocPhases;
+if(Array.isArray(d.pocVendors))pocVendors=d.pocVendors;
+if(Array.isArray(d.recentUpdates))recentUpdates=d.recentUpdates;
+}
+
+async function loadData(){
+try{
+var res=await fetch("/api/data");
+if(!res.ok)throw new Error("bad status");
+var d=await res.json();
+applyServerData(d);
+dataSource="live";
+}catch(e){
+dataSource="fallback";
+}
+}
 
 document.addEventListener("DOMContentLoaded",function(){
 var page=document.body.getAttribute("data-page");
+loadData().then(function(){
 if(page==="dashboard")renderDashboard();
 else if(page==="progress")renderProgress();
 else if(page==="timeline")renderTimeline();
 else if(page==="reports")renderReports();
 });
+});
 
 function sampleBanner(extra){
-return '<div class="sample-banner">SAMPLE DATA — 아래 수치는 예시이며, JIRA 연동 전 화면 구성 확인용입니다.'+(extra?' '+extra:'')+'</div>';
+if(dataSource==="live")return "";
+return '<div class="sample-banner">SAMPLE DATA — 서버 데이터를 불러오지 못해 예시 값으로 표시 중입니다.'+(extra?' '+extra:'')+'</div>';
 }
 
 function statusBadge(status){
@@ -35,6 +63,10 @@ return idx===-1?"시작 전":pocPhases[idx];
 
 function daysBetween(a,b){
 return Math.round((b-a)/86400000);
+}
+
+function escapeAttr(s){
+return String(s==null?"":s).replace(/&/g,"&amp;").replace(/"/g,"&quot;").replace(/</g,"&lt;");
 }
 
 function renderDashboard(){
@@ -91,6 +123,7 @@ statusFilters.forEach(function(f){
 var label=f==="all"?"전체":statusLabels[f];
 html+='<span class="filter-chip'+(f===progressFilter?' active':'')+'" data-filter="'+f+'">'+label+'</span>';
 });
+html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;"><span id="editLoginBox" style="display:none;gap:8px;align-items:center;"></span><button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
 html+='</div>';
 
 html+='<div class="progress-table-wrap"><table class="progress-matrix"><thead><tr><th>Vendor</th>';
@@ -100,15 +133,153 @@ html+='<th>Status</th><th>진행률</th><th>담당자</th><th>완료예정일</t
 root.innerHTML=html;
 renderProgressBody();
 
-var chips=document.querySelectorAll(".filter-chip");
+var chips=document.querySelectorAll(".filter-chip[data-filter]");
 for(var i=0;i<chips.length;i++){
 chips[i].onclick=function(){
 progressFilter=this.getAttribute("data-filter");
-var all=document.querySelectorAll(".filter-chip");
+var all=document.querySelectorAll(".filter-chip[data-filter]");
 for(var j=0;j<all.length;j++)all[j].className="filter-chip";
 this.className="filter-chip active";
 renderProgressBody();
 };
+}
+
+document.getElementById("editToggleBtn").onclick=onEditToggleClick;
+}
+
+function onEditToggleClick(){
+if(editMode){
+editMode=false;
+updateEditToggleLabel();
+renderProgressBody();
+return;
+}
+if(editToken){
+editMode=true;
+updateEditToggleLabel();
+renderProgressBody();
+return;
+}
+showLoginPrompt();
+}
+
+function updateEditToggleLabel(){
+var btn=document.getElementById("editToggleBtn");
+if(btn)btn.textContent=editMode?"편집 모드 끄기":"편집 모드 켜기";
+}
+
+function showLoginPrompt(){
+var box=document.getElementById("editLoginBox");
+box.style.display="inline-flex";
+box.innerHTML='<input type="password" id="editPasswordInput" class="edit-field" placeholder="편집 비밀번호"><button class="filter-chip" id="editLoginSubmit">확인</button><span id="editLoginError" style="color:var(--status-bad-text);font-size:12.5px;"></span>';
+document.getElementById("editLoginSubmit").onclick=submitLogin;
+document.getElementById("editPasswordInput").addEventListener("keydown",function(e){
+if(e.key==="Enter")submitLogin();
+});
+document.getElementById("editPasswordInput").focus();
+}
+
+async function submitLogin(){
+var input=document.getElementById("editPasswordInput");
+var errEl=document.getElementById("editLoginError");
+var pw=input.value;
+errEl.textContent="확인 중...";
+try{
+var res=await fetch("/api/login",{
+method:"POST",
+headers:{"Content-Type":"application/json"},
+body:JSON.stringify({password:pw})
+});
+if(!res.ok)throw new Error("login failed");
+var data=await res.json();
+editToken=data.token;
+try{localStorage.setItem("pocEditToken",editToken)}catch(e){}
+editMode=true;
+document.getElementById("editLoginBox").style.display="none";
+updateEditToggleLabel();
+renderProgressBody();
+}catch(e){
+errEl.textContent="비밀번호가 올바르지 않습니다.";
+}
+}
+
+function editableRow(v){
+var phaseOptions='<option value="-1"'+(v.currentPhaseIndex===-1?" selected":"")+'>시작 전</option>';
+pocPhases.forEach(function(p,idx){
+phaseOptions+='<option value="'+idx+'"'+(idx===v.currentPhaseIndex?" selected":"")+'>'+p+'</option>';
+});
+var statusOptions="";
+statusFilters.filter(function(f){return f!=="all";}).forEach(function(s){
+statusOptions+='<option value="'+s+'"'+(s===v.status?" selected":"")+'>'+statusLabels[s]+'</option>';
+});
+return (
+'<td>'+
+'<select class="edit-field edit-status" data-field="status">'+statusOptions+'</select>'+
+'<select class="edit-field edit-phase" data-field="currentPhaseIndex" style="margin-top:6px;display:block;">'+phaseOptions+'</select>'+
+'</td>'+
+'<td><input class="edit-field edit-progress" data-field="progressPct" type="number" min="0" max="100" value="'+v.progressPct+'" style="width:64px;"></td>'+
+'<td><input class="edit-field edit-owner" data-field="owner" type="text" value="'+escapeAttr(v.owner)+'" style="width:80px;"></td>'+
+'<td><input class="edit-field edit-due" data-field="dueDate" type="text" value="'+escapeAttr(v.dueDate)+'" style="width:100px;" placeholder="YYYY-MM-DD"></td>'+
+'<td><textarea class="edit-field edit-notes" data-field="notes" rows="2" style="width:100%;">'+escapeAttr(v.notes)+'</textarea>'+
+'<button class="filter-chip edit-save-btn" data-vendor="'+escapeAttr(v.name)+'" style="margin-top:6px;">저장</button>'+
+'<span class="edit-save-status"></span></td>'
+);
+}
+
+function wireEditableRows(){
+var btns=document.querySelectorAll(".edit-save-btn");
+for(var i=0;i<btns.length;i++){
+btns[i].onclick=function(){
+var vendorName=this.getAttribute("data-vendor");
+saveVendorEdit(vendorName,this);
+};
+}
+}
+
+async function saveVendorEdit(vendorName,btn){
+var row=btn.closest("tr");
+var statusEl=row.querySelector(".edit-status");
+var phaseEl=row.querySelector(".edit-phase");
+var progressEl=row.querySelector(".edit-progress");
+var ownerEl=row.querySelector(".edit-owner");
+var dueEl=row.querySelector(".edit-due");
+var notesEl=row.querySelector(".edit-notes");
+var statusSpan=row.querySelector(".edit-save-status");
+statusSpan.textContent="저장 중...";
+try{
+var res=await fetch("/api/data",{
+method:"PUT",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+editToken
+},
+body:JSON.stringify({
+vendorName:vendorName,
+status:statusEl.value,
+currentPhaseIndex:parseInt(phaseEl.value,10),
+progressPct:parseInt(progressEl.value,10)||0,
+owner:ownerEl.value,
+dueDate:dueEl.value,
+notes:notesEl.value
+})
+});
+if(res.status===401){
+editToken=null;
+editMode=false;
+try{localStorage.removeItem("pocEditToken")}catch(e){}
+alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
+updateEditToggleLabel();
+renderProgressBody();
+return;
+}
+if(!res.ok)throw new Error("save failed");
+var updated=await res.json();
+applyServerData(updated);
+dataSource="live";
+statusSpan.textContent="저장됨 ✓";
+renderProgressBody();
+}catch(e){
+statusSpan.textContent="저장 실패";
 }
 }
 
@@ -124,10 +295,16 @@ if(v.status==="completed"||idx<v.currentPhaseIndex)cls+=" done";
 else if(idx===v.currentPhaseIndex)cls+=" current";
 html+='<td class="'+cls+'">●</td>';
 });
-html+='<td>'+statusBadge(v.status)+'</td><td>'+progressBar(v.progressPct)+'</td><td>'+v.owner+'</td><td>'+v.dueDate+'</td><td class="progress-note">'+v.notes+'</td></tr>';
+if(editMode){
+html+=editableRow(v);
+}else{
+html+='<td>'+statusBadge(v.status)+'</td><td>'+progressBar(v.progressPct)+'</td><td>'+v.owner+'</td><td>'+v.dueDate+'</td><td class="progress-note">'+v.notes+'</td>';
+}
+html+='</tr>';
 });
 if(!rows.length)html='<tr><td colspan="'+(pocPhases.length+5)+'" class="report-empty">해당 상태의 벤더가 없습니다.</td></tr>';
 tbody.innerHTML=html;
+if(editMode)wireEditableRows();
 }
 
 function renderTimeline(){
