@@ -9,6 +9,10 @@ var b=parseInt(hex.slice(5,7),16);
 return "rgba("+r+","+g+","+b+","+alpha+")";
 }
 
+function cssVar(name){
+return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+}
+
 function findVendor(name){
 for(var i=0;i<vendors.length;i++){if(vendors[i].name===name)return vendors[i];}
 return null;
@@ -22,7 +26,7 @@ function buildLayout(){
 document.getElementById("root").innerHTML=
 '<div class="hero">'+
 '<div><h1>AI SECURITY <span class="accent">VENDOR MAP</span></h1><p>// Layer x Threat Domain Coverage Assessment</p></div>'+
-'<div style="text-align:right;"><div class="badge">AX SECURITY PIVOT TF</div><div style="margin-top:10px;font-size:12px;color:#5A6478;">// 11 vendors / 5 layers / 20 domains + Extended</div></div>'+
+'<div style="text-align:right;"><div class="badge">AX SECURITY PIVOT TF</div><div style="margin-top:10px;font-size:12px;color:var(--text-faint);">// 11 vendors / 5 layers / 20 domains + Extended</div></div>'+
 '</div>'+
 section("01","Vendor Selection","// 다중 선택 가능")+
 '<div class="control-panel"><div class="control-row"><span class="control-label">// Selected vendors</span><button class="reset-btn" id="resetBtn">Reset</button></div><div class="vendor-chips" id="vendorChips"></div></div>'+
@@ -104,7 +108,7 @@ backgroundColor:hexToRgba(v.color,.18),
 borderColor:v.color,
 borderWidth:2.4,
 pointBackgroundColor:v.color,
-pointBorderColor:"#0F1419",
+pointBorderColor:cssVar("--bg"),
 pointRadius:5,
 pointHoverRadius:8
 };
@@ -117,17 +121,17 @@ options:{
 responsive:true,
 maintainAspectRatio:false,
 plugins:{
-legend:{position:"bottom",labels:{color:"#E6EAF0",font:{size:12,weight:"bold"},padding:14,usePointStyle:true,boxWidth:8}},
-tooltip:{backgroundColor:"#0F1419",borderColor:"#FF6B35",borderWidth:1,titleColor:"#FF6B35",bodyColor:"#FAFBFC"}
+legend:{position:"bottom",labels:{color:cssVar("--text-body"),font:{size:12,weight:"bold"},padding:14,usePointStyle:true,boxWidth:8}},
+tooltip:{backgroundColor:cssVar("--surface"),borderColor:cssVar("--accent"),borderWidth:1,titleColor:cssVar("--accent-text"),bodyColor:cssVar("--text-primary")}
 },
 scales:{
 r:{
 min:0,
 max:5,
-ticks:{stepSize:1,backdropColor:"transparent",color:"#5A6478",font:{size:10}},
+ticks:{stepSize:1,backdropColor:"transparent",color:cssVar("--text-faint"),font:{size:10}},
 grid:{color:"rgba(255,107,53,.08)"},
 angleLines:{color:"rgba(255,107,53,.15)"},
-pointLabels:{color:"#FAFBFC",font:{size:13,weight:"bold"}}
+pointLabels:{color:cssVar("--text-primary"),font:{size:13,weight:"bold"}}
 }
 }
 }
@@ -252,7 +256,7 @@ html+='<div class="score-display"><div class="vendor-mini"><span class="dot-mini
 er[capKey].bullets.forEach(function(bb,idx){html+='<li class="'+(er[capKey].type[idx]||"neu")+'">'+bb+'</li>';});
 html+='</ul></div>';
 }else{
-html+='<div class="score-display"><div class="vendor-mini"><span class="dot-mini" style="background:'+v.color+'"></span><span class="vn-mini">'+v.name+'</span></div><div class="lr-score-box s-0">-</div></div><div class="bullets-mini" style="color:#5A6478;">// 해당 영역 미보유</div>';
+html+='<div class="score-display"><div class="vendor-mini"><span class="dot-mini" style="background:'+v.color+'"></span><span class="vn-mini">'+v.name+'</span></div><div class="lr-score-box s-0">-</div></div><div class="bullets-mini" style="color:var(--text-faint);">// 해당 영역 미보유</div>';
 }
 html+='</div>';
 });
@@ -423,7 +427,7 @@ Object.keys(extCapabilities).forEach(function(k){
 var cap=extCapabilities[k],owners=[];
 vendors.forEach(function(v){if((vendorBadges[v.name]||[]).indexOf(k)!==-1)owners.push(v);});
 var ownersHtml="";
-if(!owners.length)ownersHtml='<div style="font-size:11px;color:#5A6478;font-family:monospace;">// 해당 벤더 없음</div>';
+if(!owners.length)ownersHtml='<div style="font-size:11px;color:var(--text-faint);font-family:monospace;">// 해당 벤더 없음</div>';
 else owners.forEach(function(v){ownersHtml+='<div class="ecc-vendor-chip"><span class="ecc-dot" style="background:'+v.color+'"></span>'+v.name+'</div>';});
 html+='<div class="ext-cap-card"><span class="ecc-tag">+'+k+'</span><div class="ecc-name">'+cap.fullName+'</div><div class="ecc-desc">'+cap.desc+'</div><div class="ecc-vendors">'+ownersHtml+'</div></div>';
 });
@@ -453,6 +457,10 @@ buildLayout();
 renderAll();
 };
 chartScript.onerror=function(){
-document.getElementById("root").innerHTML='<div class="loading" style="color:#F87171;">Chart.js 로딩 실패 - 인터넷 연결 또는 CDN 접근 정책을 확인하세요.</div>';
+document.getElementById("root").innerHTML='<div class="loading" style="color:var(--status-bad-text);">Chart.js 로딩 실패 - 인터넷 연결 또는 CDN 접근 정책을 확인하세요.</div>';
 };
 document.head.appendChild(chartScript);
+
+document.addEventListener("theme-change",function(){
+if(typeof renderAll==="function"&&document.getElementById("radarChart"))renderAll();
+});

@@ -8,10 +8,25 @@ var navLinks=[
 
 (function(){
 var current=document.body.getAttribute("data-page");
+var isLight=document.documentElement.getAttribute("data-theme")==="light";
 var html='<div class="topnav"><span class="brand">AI SECURITY <span class="accent">PoC</span></span>';
 navLinks.forEach(function(l){
 html+='<a href="'+l.href+'"'+(l.page===current?' class="active"':'')+'>'+l.label+'</a>';
 });
+html+='<button type="button" class="theme-toggle" id="theme-toggle-btn">'+(isLight?"🌙 다크":"☀️ 라이트")+'</button>';
 html+='</div>';
 document.getElementById("nav-root").innerHTML=html;
+
+document.getElementById("theme-toggle-btn").addEventListener("click",function(){
+var nowLight=document.documentElement.getAttribute("data-theme")==="light";
+var next=nowLight?"dark":"light";
+if(next==="light"){
+document.documentElement.setAttribute("data-theme","light");
+}else{
+document.documentElement.removeAttribute("data-theme");
+}
+try{localStorage.setItem("theme",next)}catch(e){}
+this.textContent=next==="light"?"🌙 다크":"☀️ 라이트";
+document.dispatchEvent(new CustomEvent("theme-change"));
+});
 })();

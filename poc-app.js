@@ -208,11 +208,11 @@ html+='<div class="single-vendor report-card"><div class="vh"><span class="vn">'
 html+='<div class="vh-tag">PoC 완료일: '+poc.updatedAt+' · 담당자: '+poc.owner+'</div>';
 html+='<div style="display:flex;gap:10px;margin:14px 0;flex-wrap:wrap;">';
 layers.forEach(function(l){
-html+='<div style="text-align:center;"><div class="mini-score s-'+v.scores[l]+'" style="margin:0 auto 6px;">'+v.scores[l]+'</div><div style="font-size:9px;color:#5A6478;font-family:monospace;text-transform:uppercase;">'+layerLabels[l]+'</div></div>';
+html+='<div style="text-align:center;"><div class="mini-score s-'+v.scores[l]+'" style="margin:0 auto 6px;">'+v.scores[l]+'</div><div style="font-size:9px;color:var(--text-faint);font-family:monospace;text-transform:uppercase;">'+layerLabels[l]+'</div></div>';
 });
 html+='</div>';
-html+='<div style="font-size:12px;color:#7A8499;">'+poc.notes+'</div>';
-html+='<div style="margin-top:14px;"><a href="map.html" style="color:#FF6B35;font-family:monospace;font-size:11px;text-decoration:none;">→ Vendor Map에서 상세 비교 보기</a></div>';
+html+='<div style="font-size:12px;color:var(--text-muted);">'+poc.notes+'</div>';
+html+='<div style="margin-top:14px;"><a href="map.html" style="color:var(--accent-text);font-family:monospace;font-size:11px;text-decoration:none;">→ Vendor Map에서 상세 비교 보기</a></div>';
 html+='</div>';
 });
 
