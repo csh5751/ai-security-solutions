@@ -261,8 +261,6 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 .status-on-track:before{background:var(--status-good)}
 .status-delayed{background:rgba(251,191,36,.12);color:var(--status-warn-text);border:1px solid rgba(251,191,36,.35)}
 .status-delayed:before{background:var(--status-warn)}
-.status-blocked{background:rgba(248,113,113,.12);color:var(--status-bad-text);border:1px solid rgba(248,113,113,.35)}
-.status-blocked:before{background:var(--status-bad)}
 .status-completed{background:rgba(34,211,238,.12);color:var(--ext-accent-text);border:1px solid rgba(34,211,238,.35)}
 .status-completed:before{background:var(--ext-accent)}
 .status-not-started{background:var(--surface-2);color:var(--text-muted);border:1px solid var(--border-strong)}

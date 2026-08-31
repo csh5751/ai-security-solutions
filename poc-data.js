@@ -9,7 +9,7 @@ var pocPhases=["업체 선정","업체 컨택 및 사전 미팅 진행","PoC 담
 
 /*
 currentPhaseIndex: -1(시작 전) ~ 8(완료), pocPhases 인덱스와 동일
-status: not-started | on-track | delayed | blocked | completed | pending | cancelled
+status: not-started | on-track | delayed | completed | pending | cancelled
 아래 값은 전부 샘플 데이터 - 실제 값으로 교체 전까지 화면 레이아웃 검증용
 */
 var pocVendors=[

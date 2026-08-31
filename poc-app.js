@@ -2,13 +2,12 @@ var statusLabels={
 "not-started":"시작 전",
 "on-track":"정상 진행",
 "delayed":"지연",
-"blocked":"차단됨",
 "completed":"완료",
 "pending":"Pending",
 "cancelled":"중단/취소"
 };
 
-var statusFilters=["all","on-track","delayed","blocked","completed","not-started","pending","cancelled"];
+var statusFilters=["all","on-track","delayed","completed","not-started","pending","cancelled"];
 var progressFilter="all";
 var dataSource="fallback";
 var sortState={field:null,dir:null};
@@ -23,6 +22,26 @@ if(d.pocMeta)pocMeta=d.pocMeta;
 if(Array.isArray(d.pocPhases))pocPhases=d.pocPhases;
 if(Array.isArray(d.pocVendors))pocVendors=d.pocVendors;
 if(Array.isArray(d.recentUpdates))recentUpdates=d.recentUpdates;
+mergeMapVendors(d);
+}
+
+function mergeMapVendors(doc){
+if(typeof vendors==="undefined")return;
+if(!doc||!Array.isArray(doc.mapVendors))return;
+doc.mapVendors.forEach(function(mv){
+var exists=false;
+for(var i=0;i<vendors.length;i++){if(vendors[i].name===mv.name){exists=true;break;}}
+if(exists)return;
+var v={name:mv.name,color:mv.color,scores:mv.scores,threatScores:{}};
+layers.forEach(function(layer){
+threatDomains[layer].forEach(function(d2){v.threatScores[d2]=v.scores[layer];});
+});
+vendors.push(v);
+vendorSpecialty[mv.name]=mv.specialty;
+vendorBadges[mv.name]=mv.badges||[];
+if(mv.extRationale)vendorExtRationale[mv.name]=mv.extRationale;
+if(mv.rationale)vendorRationale[mv.name]=mv.rationale;
+});
 }
 
 async function loadData(){
@@ -131,7 +150,7 @@ var html=sampleBanner();
 html+='<div class="hero"><div><h1>'+pocMeta.title+' <span class="accent">대시보드</span></h1><p>// '+pocMeta.startDate+' ~ '+pocMeta.targetDate+' · Sponsor: '+pocMeta.sponsor+'</p></div><span class="badge">'+pocVendors.length+' VENDORS</span></div>';
 
 html+='<div class="dash-stats">';
-html+='<div class="dash-stat-card"><div class="dash-stat-label">전체 평균 진행률</div><div class="dash-stat-value">'+avgPct+'%</div><div class="dash-stat-sub">11개 벤더 평균</div></div>';
+html+='<div class="dash-stat-card"><div class="dash-stat-label">전체 평균 진행률</div><div class="dash-stat-value">'+avgPct+'%</div><div class="dash-stat-sub">'+pocVendors.length+'개 벤더 평균</div></div>';
 html+='<div class="dash-stat-card"><div class="dash-stat-label">완료 벤더</div><div class="dash-stat-value">'+completedCount+' / '+pocVendors.length+'</div><div class="dash-stat-sub">최종평가 완료 기준</div></div>';
 html+='<div class="dash-stat-card"><div class="dash-stat-label">진행중 벤더</div><div class="dash-stat-value">'+inProgressCount+'</div><div class="dash-stat-sub">미착수 '+notStartedCount+'</div></div>';
 html+='<div class="dash-stat-card"><div class="dash-stat-label">목표 완료일까지</div><div class="dash-stat-value">'+ddayText+'</div><div class="dash-stat-sub">'+pocMeta.targetDate+' 목표</div></div>';
@@ -151,7 +170,7 @@ html+='<div class="update-log-item"><span class="update-log-date">'+u.date+'</sp
 
 html+=section("03","바로가기","// 메뉴별 상세 화면");
 html+='<div class="quick-nav-grid">';
-html+='<a class="quick-nav-card" href="map.html"><div class="qnc-title">Vendor Map</div><div class="qnc-desc">11개 벤더 5-Layer 비교, 레이더차트, 히트맵, 유사도 분석</div></a>';
+html+='<a class="quick-nav-card" href="map.html"><div class="qnc-title">Vendor Map</div><div class="qnc-desc">'+pocVendors.length+'개 벤더 5-Layer 비교, 레이더차트, 히트맵, 유사도 분석</div></a>';
 html+='<a class="quick-nav-card" href="progress.html"><div class="qnc-title">PoC 진행현황</div><div class="qnc-desc">벤더 × 단계 매트릭스, 담당자/일정/메모</div></a>';
 html+='<a class="quick-nav-card" href="timeline.html"><div class="qnc-title">로드맵</div><div class="qnc-desc">벤더별 타임라인 + Kickoff/중간점검/최종보고 마일스톤</div></a>';
 html+='<a class="quick-nav-card" href="reports.html"><div class="qnc-title">평가 리포트</div><div class="qnc-desc">PoC 완료 벤더의 최종 스코어카드</div></a>';
@@ -170,7 +189,7 @@ statusFilters.forEach(function(f){
 var label=f==="all"?"전체":statusLabels[f];
 html+='<span class="filter-chip'+(f===progressFilter?' active':'')+'" data-filter="'+f+'">'+label+'</span>';
 });
-html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;"><span id="reorderStatus" class="edit-save-status"></span><span id="editLoginBox" style="display:none;gap:8px;align-items:center;"></span><button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
+html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;"><span id="reorderStatus" class="edit-save-status"></span><span id="editLoginBox" style="display:none;gap:8px;align-items:center;"></span><span id="addVendorBox" style="display:none;gap:8px;align-items:center;"></span>'+(editMode?'<button class="filter-chip" id="addVendorToggleBtn">+ 업체 추가</button>':'')+'<button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
 html+='</div>';
 
 html+=phaseLegendHtml();
@@ -206,6 +225,8 @@ onSortClick(this.getAttribute("data-sort"));
 }
 
 document.getElementById("editToggleBtn").onclick=onEditToggleClick;
+var addBtn=document.getElementById("addVendorToggleBtn");
+if(addBtn)addBtn.onclick=showAddVendorPrompt;
 }
 
 function onEditToggleClick(){
@@ -261,6 +282,64 @@ updateEditToggleLabel();
 renderProgressBody();
 }catch(e){
 errEl.textContent="비밀번호가 올바르지 않습니다.";
+}
+}
+
+function showAddVendorPrompt(){
+var box=document.getElementById("addVendorBox");
+box.style.display="inline-flex";
+box.innerHTML='<input type="text" id="addVendorInput" class="edit-field" placeholder="업체명 입력"><button class="filter-chip" id="addVendorSubmit">확인</button><span id="addVendorStatus" style="color:var(--text-faint);font-size:12.5px;"></span>';
+document.getElementById("addVendorSubmit").onclick=function(){
+addVendor(document.getElementById("addVendorInput").value);
+};
+document.getElementById("addVendorInput").addEventListener("keydown",function(e){
+if(e.key==="Enter")addVendor(document.getElementById("addVendorInput").value);
+});
+document.getElementById("addVendorInput").focus();
+}
+
+async function addVendor(name){
+var statusEl=document.getElementById("addVendorStatus");
+var submitBtn=document.getElementById("addVendorSubmit");
+var trimmed=(name||"").trim();
+if(!trimmed){
+if(statusEl)statusEl.textContent="업체명을 입력해주세요.";
+return;
+}
+if(statusEl)statusEl.textContent="검색 중... (10~20초 소요될 수 있습니다)";
+if(submitBtn)submitBtn.disabled=true;
+try{
+var res=await fetch("/api/add-vendor",{
+method:"POST",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+editToken
+},
+body:JSON.stringify({vendorName:trimmed})
+});
+if(res.status===401){
+editToken=null;
+editMode=false;
+try{localStorage.removeItem("pocEditToken")}catch(e){}
+alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
+updateEditToggleLabel();
+renderProgress();
+return;
+}
+var data=await res.json();
+if(!res.ok){
+if(statusEl)statusEl.textContent=data.error||"추가 실패";
+if(submitBtn)submitBtn.disabled=false;
+return;
+}
+applyServerData(data);
+dataSource="live";
+renderProgress();
+var statusEl2=document.getElementById("reorderStatus");
+if(statusEl2)statusEl2.textContent="'"+data.resolvedName+"' 추가 완료";
+}catch(e){
+if(statusEl)statusEl.textContent="추가 실패 (네트워크 오류)";
+if(submitBtn)submitBtn.disabled=false;
 }
 }
 

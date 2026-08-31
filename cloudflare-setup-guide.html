@@ -1,0 +1,444 @@
+<title>PoC 백엔드 배선</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F2F4F7;
+  --surface:#FFFFFF;
+  --surface-2:#EAEDF2;
+  --border:#DCE1EA;
+  --border-strong:#C2C9D6;
+  --text-primary:#12151C;
+  --text-body:#232838;
+  --text-muted:#5C6478;
+  --text-faint:#8891A3;
+  --accent:#C2410C;
+  --accent-soft:#FBEAE0;
+  --on-accent:#FFFFFF;
+  --success:#15803D;
+  --success-soft:#E4F5EA;
+  --shadow:rgba(20,30,50,.08);
+  --code-bg:#12151C;
+  --code-text:#FFD9C2;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1419;
+    --surface:#161B22;
+    --surface-2:#1A2330;
+    --border:#1F2937;
+    --border-strong:#2A3548;
+    --text-primary:#FAFBFC;
+    --text-body:#E6EAF0;
+    --text-muted:#9CA6B8;
+    --text-faint:#6B7488;
+    --accent:#FF6B35;
+    --accent-soft:#3A2416;
+    --on-accent:#0F1419;
+    --success:#4ADE80;
+    --success-soft:#173323;
+    --shadow:rgba(0,0,0,.35);
+    --code-bg:#0A0D11;
+    --code-text:#FFB088;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1419;
+  --surface:#161B22;
+  --surface-2:#1A2330;
+  --border:#1F2937;
+  --border-strong:#2A3548;
+  --text-primary:#FAFBFC;
+  --text-body:#E6EAF0;
+  --text-muted:#9CA6B8;
+  --text-faint:#6B7488;
+  --accent:#FF6B35;
+  --accent-soft:#3A2416;
+  --on-accent:#0F1419;
+  --success:#4ADE80;
+  --success-soft:#173323;
+  --shadow:rgba(0,0,0,.35);
+  --code-bg:#0A0D11;
+  --code-text:#FFB088;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text-body);
+  font-family:'IBM Plex Sans KR','IBM Plex Sans',-apple-system,sans-serif;
+  font-size:16px;
+  line-height:1.65;
+}
+.wrap{max-width:760px;margin:0 auto;padding:56px 24px 96px}
+
+.eyebrow{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:12.5px;
+  font-weight:700;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  color:var(--accent);
+}
+h1{
+  font-size:clamp(28px,5vw,38px);
+  font-weight:700;
+  letter-spacing:-.01em;
+  color:var(--text-primary);
+  margin:10px 0 12px;
+  text-wrap:balance;
+}
+.lede{color:var(--text-muted);font-size:16px;max-width:62ch;margin:0 0 8px}
+.lede b{color:var(--text-body);font-weight:600}
+
+.progress-shell{
+  position:sticky;top:0;
+  background:var(--bg);
+  padding:18px 0 14px;
+  z-index:5;
+  border-bottom:1px solid var(--border);
+  margin-bottom:36px;
+}
+.progress-row{display:flex;align-items:center;gap:12px}
+.progress-track{flex:1;height:7px;background:var(--surface-2);border-radius:99px;overflow:hidden;border:1px solid var(--border)}
+.progress-fill{height:100%;background:var(--accent);border-radius:99px;transition:width .3s ease;width:0}
+.progress-label{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:13px;font-weight:700;color:var(--text-muted);
+  white-space:nowrap;
+}
+
+.stage{margin-bottom:44px}
+.stage-head{display:flex;align-items:baseline;gap:12px;margin-bottom:16px}
+.stage-num{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:14px;font-weight:700;color:var(--on-accent);
+  background:var(--accent);
+  width:28px;height:28px;border-radius:7px;
+  display:inline-flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.stage-title{font-size:19px;font-weight:700;color:var(--text-primary)}
+.stage-where{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:12.5px;color:var(--text-faint);
+  margin:-10px 0 16px 40px;
+}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:12px;
+  box-shadow:0 1px 2px var(--shadow);
+  overflow:hidden;
+}
+.step{
+  display:flex;gap:14px;
+  padding:16px 18px;
+  border-bottom:1px solid var(--border);
+}
+.step:last-child{border-bottom:none}
+.step input[type="checkbox"]{
+  appearance:none;
+  width:20px;height:20px;flex-shrink:0;margin-top:2px;
+  border:2px solid var(--border-strong);
+  border-radius:6px;
+  cursor:pointer;
+  position:relative;
+  background:var(--surface);
+}
+.step input[type="checkbox"]:checked{
+  background:var(--success);
+  border-color:var(--success);
+}
+.step input[type="checkbox"]:checked::after{
+  content:"";
+  position:absolute;left:6px;top:2px;
+  width:5px;height:10px;
+  border:solid var(--surface);
+  border-width:0 2px 2px 0;
+  transform:rotate(40deg);
+}
+.step input[type="checkbox"]:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.step-body{flex:1;min-width:0}
+.step-body p{margin:0 0 6px;color:var(--text-body)}
+.step.done .step-body p{color:var(--text-faint);text-decoration:line-through;text-decoration-color:var(--border-strong)}
+
+.value-box{
+  display:flex;align-items:center;gap:10px;
+  margin-top:8px;
+  padding:9px 12px;
+  background:var(--code-bg);
+  border-radius:7px;
+  flex-wrap:wrap;
+}
+.value-box .tag{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:11.5px;font-weight:700;
+  color:var(--text-faint);
+  text-transform:uppercase;letter-spacing:.06em;
+}
+.value-box code{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-size:14px;font-weight:700;
+  color:var(--code-text);
+  background:none;
+}
+
+.callout{
+  display:flex;gap:10px;
+  background:var(--accent-soft);
+  border:1px solid var(--accent);
+  border-radius:10px;
+  padding:12px 14px;
+  margin:14px 0 0;
+  font-size:14.5px;
+}
+.callout b{color:var(--text-primary)}
+.callout .mark{
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+  font-weight:700;color:var(--accent);flex-shrink:0;
+}
+
+.next-note{
+  background:var(--success-soft);
+  border:1px solid var(--success);
+  border-radius:12px;
+  padding:20px 22px;
+  margin-top:8px;
+}
+.next-note .stage-title{margin-bottom:6px}
+.next-note p{margin:0 0 8px;color:var(--text-body)}
+.next-note p:last-child{margin-bottom:0}
+
+.theme-note{
+  margin-top:56px;padding-top:20px;border-top:1px solid var(--border);
+  font-size:13px;color:var(--text-faint);
+  font-family:'JetBrains Mono',ui-monospace,monospace;
+}
+</style>
+
+<div class="wrap">
+
+  <div class="progress-shell">
+    <div class="progress-row">
+      <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+      <div class="progress-label" id="progressLabel">0 / 0 완료</div>
+    </div>
+  </div>
+
+  <span class="eyebrow">Cloudflare 설정 &nbsp;·&nbsp; 1회성 작업</span>
+  <h1>PoC 편집 기능, 배선 가이드</h1>
+  <p class="lede">지금 배포된 progress.html의 <b>편집 모드</b>가 실제로 저장까지 되려면, Cloudflare 대시보드에서 딱 세 가지 — <b>KV 저장소, 바인딩, 비밀번호 두 개</b> — 를 연결해줘야 합니다. 코드는 이미 준비돼 있고, 여기 있는 건 전부 클릭 몇 번으로 끝나는 설정입니다. 위에서부터 순서대로 하시면 됩니다.</p>
+
+  <section class="stage">
+    <div class="stage-head">
+      <span class="stage-num">1</span>
+      <span class="stage-title">KV 저장소 만들기</span>
+    </div>
+    <p class="stage-where">dash.cloudflare.com 로그인 → 왼쪽 메뉴 Storage &amp; Databases → KV</p>
+    <div class="card">
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>Cloudflare 대시보드에 로그인하고, 왼쪽 사이드바에서 <b>Storage &amp; Databases → KV</b>로 들어갑니다.</p>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p><b>Create instance</b> 버튼을 누릅니다. (구버전 화면에는 "Create namespace"로 표시되기도 합니다 — 같은 버튼입니다.)</p>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>이름은 자유롭게 지어도 됩니다 (예: <code style="font-family:'JetBrains Mono',monospace">poc-progress</code>). <b>Add</b>를 눌러 생성을 완료합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage">
+    <div class="stage-head">
+      <span class="stage-num">2</span>
+      <span class="stage-title">Pages 프로젝트에 연결(바인딩)</span>
+    </div>
+    <p class="stage-where">Workers &amp; Pages → ai-security-solutions → Settings → Bindings</p>
+    <div class="card">
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>왼쪽 사이드바 <b>Workers &amp; Pages</b> → <b>ai-security-solutions</b> 프로젝트 클릭 → 상단 <b>Settings</b> 탭.</p>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p><b>Bindings</b> 메뉴로 들어가 <b>Add</b> 클릭 → 타입에서 <b>KV namespace</b>를 선택합니다. (구버전 화면에는 Functions → KV namespace bindings 였는데, 지금은 Bindings 하나로 통합됐습니다.)</p>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>아래 값을 <b>철자·대소문자 그대로</b> 입력하세요. 코드가 이 이름으로 직접 참조합니다.</p>
+          <div class="value-box"><span class="tag">Variable name</span><code>POC_KV</code></div>
+          <div class="value-box"><span class="tag">KV namespace</span><code>1단계에서 만든 네임스페이스 선택</code></div>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p><b>Save</b>. 화면에 <b>Production / Preview</b> 환경 구분이 보이면, 두 환경 모두에 같은 바인딩을 추가해주세요.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage">
+    <div class="stage-head">
+      <span class="stage-num">3</span>
+      <span class="stage-title">비밀번호·서명키 등록</span>
+    </div>
+    <p class="stage-where">같은 Settings 화면 → Variables and Secrets</p>
+    <div class="card">
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p><b>Variables and Secrets</b> 메뉴로 들어가 <b>Add</b>를 두 번 눌러 아래 두 개를 등록합니다. Type 드롭다운(또는 체크박스)이 보이면 반드시 <b>Secret</b>(=Encrypt)로 선택하세요 — 일반 Text로 저장하면 코드 동작은 같지만 값이 대시보드에 그대로 노출됩니다.</p>
+          <div class="value-box"><span class="tag">이름</span><code>EDIT_PASSWORD</code><span class="tag">값</span><code>편집 모드에 쓸 비밀번호</code></div>
+          <div class="value-box"><span class="tag">이름</span><code>SESSION_SECRET</code><span class="tag">값</span><code>아무도 모를 무작위 긴 문자열</code></div>
+          <div class="callout">
+            <span class="mark">TIP</span>
+            <span><code style="font-family:'JetBrains Mono',monospace;color:var(--text-primary)">SESSION_SECRET</code> 값이 마땅히 없다면: 새 브라우저 탭을 열고 <b>F12</b>(개발자 도구) → <b>Console</b> 탭에서 <code style="font-family:'JetBrains Mono',monospace;color:var(--text-primary)">crypto.randomUUID()+crypto.randomUUID()</code>를 입력해 나온 문자열을 그대로 복사해 붙여넣으면 됩니다.</span>
+          </div>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p><b>Save</b> 후, 화면 상단에서 환경을 <b>Preview</b>로 전환해 위 두 값을 동일하게 한 번 더 등록합니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage">
+    <div class="stage-head">
+      <span class="stage-num">4</span>
+      <span class="stage-title">업체 자동 추가(AI 조사) 기능 연결</span>
+    </div>
+    <p class="stage-where">같은 Settings 화면 → Variables and Secrets &nbsp;+&nbsp; console.anthropic.com</p>
+    <div class="card">
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>진행현황 화면에서 업체명만 입력하면 AI가 웹 검색으로 정확한 이름과 정보를 조사해 자동 등록해주는 기능을 쓰려면, Anthropic API 키가 필요합니다. <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener" style="color:var(--accent)">console.anthropic.com</a>에서 로그인 후 API 키를 하나 발급받으세요.</p>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>3단계와 같은 <b>Variables and Secrets</b> 화면에서 <b>Add</b>를 눌러 아래 값을 <b>Secret</b>(=Encrypt) 타입으로 등록합니다. Production/Preview 두 환경 모두에 등록해주세요.</p>
+          <div class="value-box"><span class="tag">이름</span><code>ANTHROPIC_API_KEY</code><span class="tag">값</span><code>방금 발급받은 API 키</code></div>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>Anthropic Console의 <b>Settings → Web Search</b>(또는 조직 설정 내 Web Search 항목)에서 웹 검색 도구를 활성화합니다. 조직 관리자 권한이 필요할 수 있습니다.</p>
+          <div class="callout">
+            <span class="mark">비용 안내</span>
+            <span>웹 검색은 1,000회당 약 $10 수준의 비용이 발생합니다. 업체 하나를 추가할 때 몇 번의 검색만 사용하므로 비용은 미미하지만, 조직 계정에 청구되는 실비용이니 참고해주세요.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="stage">
+    <div class="stage-head">
+      <span class="stage-num">5</span>
+      <span class="stage-title">재배포 후 실제로 눌러보기</span>
+    </div>
+    <div class="card">
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>여기까지 끝나면 <b>Claude에게 "설정 끝났어"라고 알려주세요.</b> 방금 등록한 바인딩·환경변수는 <b>다음 배포부터</b> 적용되기 때문에, 제가 코드를 push해서 새 배포를 트리거해야 실제로 반영됩니다.</p>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>배포가 끝나면 실제 사이트의 <b>progress.html</b>로 들어가 우측 상단 <b>편집 모드 켜기</b>를 클릭합니다.</p>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>3단계에서 정한 <code style="font-family:'JetBrains Mono',monospace">EDIT_PASSWORD</code> 값을 입력 → 벤더 아무 행이나 값을 바꾸고 <b>저장</b> 클릭.</p>
+        </div>
+      </div>
+      <div class="step">
+        <input type="checkbox" data-step>
+        <div class="step-body">
+          <p>"저장됨 ✓"이 뜨고, <b>새로고침해도 값이 그대로 남아있으면</b> 전체 설정이 정상적으로 끝난 것입니다.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="next-note">
+    <div class="stage-title">막히는 부분이 있으면</div>
+    <p>화면에 보이는 메뉴 이름이 여기와 살짝 다르거나(Cloudflare가 종종 UI를 바꿉니다), 저장이 안 되거나, 편집 모드에서 비밀번호가 계속 틀렸다고 나오면 — 어느 단계에서 무슨 화면이 보이는지 그대로 알려주세요. 화면 문구 그대로 캡처해서 붙여넣어 주셔도 됩니다.</p>
+  </div>
+
+  <div class="theme-note">progress · <span id="progressLabel2"></span></div>
+</div>
+
+<script>
+(function(){
+  var STORAGE_KEY = "cf-setup-guide-progress";
+  var boxes = Array.prototype.slice.call(document.querySelectorAll("[data-step]"));
+
+  function loadState(){
+    try{
+      var raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : {};
+    }catch(e){ return {}; }
+  }
+  function saveState(state){
+    try{ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }catch(e){}
+  }
+
+  var state = loadState();
+
+  function updateProgress(){
+    var done = boxes.filter(function(b){ return b.checked; }).length;
+    var total = boxes.length;
+    var pct = total ? Math.round((done/total)*100) : 0;
+    document.getElementById("progressFill").style.width = pct + "%";
+    document.getElementById("progressLabel").textContent = done + " / " + total + " 완료";
+    var l2 = document.getElementById("progressLabel2");
+    if(l2) l2.textContent = done + "/" + total;
+  }
+
+  boxes.forEach(function(box, i){
+    var key = "step-" + i;
+    box.checked = !!state[key];
+    box.closest(".step").classList.toggle("done", box.checked);
+    box.addEventListener("change", function(){
+      state[key] = box.checked;
+      saveState(state);
+      box.closest(".step").classList.toggle("done", box.checked);
+      updateProgress();
+    });
+  });
+
+  updateProgress();
+})();
+</script>

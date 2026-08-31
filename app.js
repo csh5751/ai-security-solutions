@@ -22,11 +22,31 @@ function totalScore(v){
 return layers.reduce(function(s,l){return s+v.scores[l];},0);
 }
 
+function mergeMapVendors(doc){
+if(!doc||!Array.isArray(doc.mapVendors))return;
+doc.mapVendors.forEach(function(mv){
+var exists=false;
+for(var i=0;i<vendors.length;i++){if(vendors[i].name===mv.name){exists=true;break;}}
+if(exists)return;
+var v={name:mv.name,color:mv.color,scores:mv.scores,threatScores:{}};
+layers.forEach(function(layer){
+threatDomains[layer].forEach(function(d2){v.threatScores[d2]=v.scores[layer];});
+});
+vendors.push(v);
+vendorSpecialty[mv.name]=mv.specialty;
+vendorBadges[mv.name]=mv.badges||[];
+if(mv.extRationale)vendorExtRationale[mv.name]=mv.extRationale;
+if(mv.rationale)vendorRationale[mv.name]=mv.rationale;
+});
+}
+
 function buildLayout(){
+var domainCount=0;
+layers.forEach(function(l){domainCount+=threatDomains[l].length;});
 document.getElementById("root").innerHTML=
 '<div class="hero">'+
 '<div><h1>AI SECURITY <span class="accent">VENDOR MAP</span></h1><p>// Layer x Threat Domain Coverage Assessment</p></div>'+
-'<div style="text-align:right;"><div class="badge">AX SECURITY PIVOT TF</div><div style="margin-top:10px;font-size:12px;color:var(--text-faint);">// 11 vendors / 5 layers / 20 domains + Extended</div></div>'+
+'<div style="text-align:right;"><div class="badge">AX SECURITY PIVOT TF</div><div style="margin-top:10px;font-size:12px;color:var(--text-faint);">// '+vendors.length+' vendors / '+layers.length+' layers / '+domainCount+' domains + Extended</div></div>'+
 '</div>'+
 section("01","Vendor Selection","// 다중 선택 가능")+
 '<div class="control-panel"><div class="control-row"><span class="control-label">// Selected vendors</span><button class="reset-btn" id="resetBtn">Reset</button></div><div class="vendor-chips" id="vendorChips"></div></div>'+
@@ -453,8 +473,10 @@ renderExtCapMap();
 var chartScript=document.createElement("script");
 chartScript.src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js";
 chartScript.onload=function(){
-buildLayout();
-renderAll();
+fetch("/api/data").then(function(r){return r.ok?r.json():null;})
+.then(function(doc){if(doc)mergeMapVendors(doc);})
+.catch(function(){})
+.then(function(){buildLayout();renderAll();});
 };
 chartScript.onerror=function(){
 document.getElementById("root").innerHTML='<div class="loading" style="color:var(--status-bad-text);">Chart.js 로딩 실패 - 인터넷 연결 또는 CDN 접근 정책을 확인하세요.</div>';
