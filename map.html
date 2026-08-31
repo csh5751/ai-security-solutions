@@ -2,18 +2,20 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>AI Security PoC 대시보드</title>
+<title>Vendor Map - AI Security PoC</title>
 <link rel="stylesheet" href="style.css">
 </head>
 
-<body data-page="dashboard">
+<body data-page="map">
 <div class="container">
 <div id="nav-root"></div>
-<div id="root"></div>
+<div id="root">
+  <div class="loading">Loading Chart.js library...</div>
+</div>
 </div>
 
 <script src="nav.js"></script>
-<script src="poc-data.js"></script>
-<script src="poc-app.js"></script>
+<script src="data.js"></script>
+<script src="app.js"></script>
 </body>
 </html>
