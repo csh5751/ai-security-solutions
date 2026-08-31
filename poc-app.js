@@ -63,6 +63,15 @@ function phaseLabelOf(idx){
 return idx===-1?"시작 전":pocPhases[idx];
 }
 
+function phaseLegendHtml(){
+var html='<div class="phase-legend">';
+pocPhases.forEach(function(p,idx){
+html+='<span class="pl-item"><span class="pl-num">'+(idx+1)+'</span>'+p+'</span>';
+});
+html+='</div>';
+return html;
+}
+
 function daysBetween(a,b){
 return Math.round((b-a)/86400000);
 }
@@ -128,8 +137,10 @@ html+='<span class="filter-chip'+(f===progressFilter?' active':'')+'" data-filte
 html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;"><span id="editLoginBox" style="display:none;gap:8px;align-items:center;"></span><button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
 html+='</div>';
 
+html+=phaseLegendHtml();
+
 html+='<div class="progress-table-wrap"><table class="progress-matrix"><thead><tr><th>Vendor</th>';
-pocPhases.forEach(function(p){html+='<th>'+p+'</th>';});
+pocPhases.forEach(function(p,idx){html+='<th class="phase-th" title="'+escapeAttr(p)+'">'+(idx+1)+'</th>';});
 html+='<th>Status</th><th>진행률</th><th>담당자</th><th>완료예정일</th><th>메모</th></tr></thead><tbody id="progressBody"></tbody></table></div>';
 
 root.innerHTML=html;
@@ -217,7 +228,7 @@ statusOptions+='<option value="'+s+'"'+(s===v.status?" selected":"")+'>'+statusL
 return (
 '<td>'+
 '<select class="edit-field edit-status" data-field="status">'+statusOptions+'</select>'+
-'<select class="edit-field edit-phase" data-field="currentPhaseIndex" style="margin-top:6px;display:block;">'+phaseOptions+'</select>'+
+'<select class="edit-field edit-phase" data-field="currentPhaseIndex" style="margin-top:6px;display:block;max-width:170px;">'+phaseOptions+'</select>'+
 '</td>'+
 '<td><input class="edit-field edit-progress" data-field="progressPct" type="number" min="0" max="100" value="'+v.progressPct+'" style="width:64px;"></td>'+
 '<td><input class="edit-field edit-owner" data-field="owner" type="text" value="'+escapeAttr(v.owner)+'" style="width:80px;"></td>'+
@@ -295,7 +306,7 @@ pocPhases.forEach(function(p,idx){
 var cls="phase-cell";
 if(v.status==="completed"||idx<v.currentPhaseIndex)cls+=" done";
 else if(idx===v.currentPhaseIndex)cls+=" current";
-html+='<td class="'+cls+'">●</td>';
+html+='<td class="'+cls+'" title="'+escapeAttr(p)+'">●</td>';
 });
 if(editMode){
 html+=editableRow(v);
@@ -336,8 +347,9 @@ html+='<div class="milestone"><div class="'+dotCls+'"></div><div class="mileston
 html+='</div>';
 
 html+=section("02","벤더별 타임라인","// 단계별 진행 구간");
+html+=phaseLegendHtml();
 html+='<div class="timeline-header"><div class="timeline-vendor-name"></div><div class="timeline-header-track">';
-pocPhases.forEach(function(p){html+='<span>'+p+'</span>';});
+pocPhases.forEach(function(p,idx){html+='<span title="'+escapeAttr(p)+'">'+(idx+1)+'</span>';});
 html+='</div></div>';
 pocVendors.forEach(function(v){
 html+='<div class="timeline-row"><div class="timeline-vendor-name">'+v.name+'</div><div class="timeline-track">';
@@ -345,7 +357,7 @@ pocPhases.forEach(function(p,idx){
 var cls="timeline-phase-seg";
 if(v.status==="completed"||idx<v.currentPhaseIndex)cls+=" filled";
 else if(idx===v.currentPhaseIndex)cls+=" current";
-html+='<div class="'+cls+'"></div>';
+html+='<div class="'+cls+'" title="'+escapeAttr(p)+'"></div>';
 });
 html+='</div></div>';
 });

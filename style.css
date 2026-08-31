@@ -309,10 +309,15 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 .progress-matrix td{background:var(--surface);padding:16px 11px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);font-size:15px}
 .progress-matrix td:first-child{border-left:1px solid var(--border);border-radius:7px 0 0 7px}
 .progress-matrix td:last-child{border-right:1px solid var(--border);border-radius:0 7px 7px 0}
-.phase-cell{text-align:center;font-family:monospace;font-size:19px;color:var(--border-strong)}
+.phase-cell{text-align:center;font-family:monospace;font-size:19px;color:var(--border-strong);cursor:default}
 .phase-cell.done{color:var(--status-good-text)}
 .phase-cell.current{color:var(--accent-text);font-weight:800}
+.phase-th{text-align:center!important;width:34px;cursor:default}
 .progress-note{font-size:14px;color:var(--text-muted);max-width:230px;line-height:1.5}
+
+.phase-legend{display:flex;flex-wrap:wrap;row-gap:7px;column-gap:16px;margin-bottom:18px;font-family:monospace;font-size:12.5px;color:var(--text-faint)}
+.pl-item{display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+.pl-num{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;background:var(--surface-2);border:1px solid var(--border-strong);font-size:10px;font-weight:800;color:var(--text-muted);flex-shrink:0}
 
 .filter-chips{display:flex;gap:9px;margin-bottom:20px;flex-wrap:wrap}
 .filter-chip{padding:8px 16px;background:var(--surface);border:1px solid var(--border-strong);border-radius:16px;font-size:14.5px;color:var(--text-muted);cursor:pointer;font-family:monospace}
@@ -324,7 +329,7 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 /* ---- Timeline page (timeline.html) ---- */
 .timeline-header{display:grid;grid-template-columns:155px 1fr;gap:16px;margin-bottom:11px}
 .timeline-header-track{display:flex}
-.timeline-header-track span{flex:1;text-align:center;font-family:monospace;font-size:12.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:.5px}
+.timeline-header-track span{flex:1;text-align:center;font-family:monospace;font-size:12px;font-weight:700;color:var(--text-faint);cursor:default}
 .timeline-row{display:grid;grid-template-columns:155px 1fr;gap:16px;align-items:center;padding:11px 0;border-bottom:1px solid var(--surface-2)}
 .timeline-row:last-child{border-bottom:none}
 .timeline-vendor-name{font-size:15px;font-weight:700;color:var(--text-primary)}
