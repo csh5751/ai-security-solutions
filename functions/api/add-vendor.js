@@ -217,59 +217,64 @@ export async function onRequestPost(context) {
     return json({ error: "이미 등록된 벤더입니다" }, 409);
   }
 
-  if (!env.ANTHROPIC_API_KEY) {
-    return json({ error: "server not configured: ANTHROPIC_API_KEY missing" }, 500);
-  }
-
-  var systemPrompt = buildSystemPrompt();
-  var messages = [
-    { role: "user", content: "다음 벤더를 조사해서 등록해주세요: \"" + vendorName + "\"" }
-  ];
-  var tools = [
-    { type: "web_search_20250305", name: "web_search", max_uses: 5 },
-    VENDOR_TOOL
-  ];
-  var model = env.LLM_MODEL || "claude-sonnet-4-5-20250929";
-
-  async function callAnthropic() {
-    var res = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01"
-      },
-      body: JSON.stringify({
-        model: model,
-        max_tokens: 4096,
-        system: systemPrompt,
-        tools: tools,
-        messages: messages
-      })
-    });
-    if (!res.ok) {
-      var errText = await res.text();
-      throw new Error("Anthropic API error " + res.status + ": " + errText.slice(0, 300));
-    }
-    return res.json();
-  }
-
   var toolUse;
-  try {
-    var result = await callAnthropic();
-    toolUse = findToolUse(result.content);
-    if (!toolUse) {
-      messages.push({ role: "assistant", content: result.content });
-      messages.push({ role: "user", content: "반드시 submit_vendor_profile 도구를 정확히 한 번 호출해서 지금까지 조사한 내용을 제출하세요." });
-      var retryResult = await callAnthropic();
-      toolUse = findToolUse(retryResult.content);
-    }
-  } catch (e) {
-    return json({ error: "LLM 호출 실패: " + e.message }, 502);
-  }
 
-  if (!toolUse) {
-    return json({ error: "벤더 정보를 조사하지 못했습니다. 다시 시도해주세요." }, 502);
+  if (body && body.profile && typeof body.profile === "object") {
+    toolUse = { input: body.profile };
+  } else {
+    if (!env.ANTHROPIC_API_KEY) {
+      return json({ error: "server not configured: ANTHROPIC_API_KEY missing" }, 500);
+    }
+
+    var systemPrompt = buildSystemPrompt();
+    var messages = [
+      { role: "user", content: "다음 벤더를 조사해서 등록해주세요: \"" + vendorName + "\"" }
+    ];
+    var tools = [
+      { type: "web_search_20250305", name: "web_search", max_uses: 5 },
+      VENDOR_TOOL
+    ];
+    var model = env.LLM_MODEL || "claude-sonnet-4-5-20250929";
+
+    var callAnthropic = async function () {
+      var res = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": env.ANTHROPIC_API_KEY,
+          "anthropic-version": "2023-06-01"
+        },
+        body: JSON.stringify({
+          model: model,
+          max_tokens: 4096,
+          system: systemPrompt,
+          tools: tools,
+          messages: messages
+        })
+      });
+      if (!res.ok) {
+        var errText = await res.text();
+        throw new Error("Anthropic API error " + res.status + ": " + errText.slice(0, 300));
+      }
+      return res.json();
+    };
+
+    try {
+      var result = await callAnthropic();
+      toolUse = findToolUse(result.content);
+      if (!toolUse) {
+        messages.push({ role: "assistant", content: result.content });
+        messages.push({ role: "user", content: "반드시 submit_vendor_profile 도구를 정확히 한 번 호출해서 지금까지 조사한 내용을 제출하세요." });
+        var retryResult = await callAnthropic();
+        toolUse = findToolUse(retryResult.content);
+      }
+    } catch (e) {
+      return json({ error: "LLM 호출 실패: " + e.message }, 502);
+    }
+
+    if (!toolUse) {
+      return json({ error: "벤더 정보를 조사하지 못했습니다. 다시 시도해주세요." }, 502);
+    }
   }
 
   var profile = normalizeProfile(toolUse.input || {});
@@ -280,6 +285,7 @@ export async function onRequestPost(context) {
     return json({ error: "'" + profile.resolvedName + "'은(는) 이미 등록된 벤더입니다" }, 409);
   }
 
+  var isManual = !!(body && body.profile && typeof body.profile === "object");
   var today = new Date().toISOString().slice(0, 10);
 
   doc.pocVendors.push({
@@ -289,7 +295,7 @@ export async function onRequestPost(context) {
     owner: "TBD",
     dueDate: "-",
     progressPct: 0,
-    notes: "(AI 자동 등록 - 정보 확인 필요)",
+    notes: isManual ? "" : "(AI 자동 등록 - 정보 확인 필요)",
     updatedAt: today
   });
 
@@ -297,17 +303,17 @@ export async function onRequestPost(context) {
     name: profile.resolvedName,
     color: profile.color,
     scores: profile.scores,
-    specialty: profile.specialty + " (AI 추정치)",
+    specialty: isManual ? profile.specialty : profile.specialty + " (AI 추정치)",
     badges: profile.badges,
     rationale: profile.rationale,
     extRationale: profile.extRationale,
-    estimated: true
+    estimated: !isManual
   });
 
   doc.recentUpdates.unshift({
     date: today,
     vendor: profile.resolvedName,
-    message: "업체 추가 (AI 자동 조사)"
+    message: isManual ? "업체 추가" : "업체 추가 (AI 자동 조사)"
   });
   doc.recentUpdates = doc.recentUpdates.slice(0, 20);
 
