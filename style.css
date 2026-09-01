@@ -284,8 +284,8 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 
 .vendor-status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:13px;margin-bottom:30px}
 .vendor-status-card{background:var(--surface);border:1px solid var(--border);border-radius:9px;padding:18px;box-shadow:0 2px 8px var(--shadow)}
-.vsc-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;gap:8px}
-.vsc-name{font-size:16px;font-weight:700;color:var(--text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.vsc-top{display:flex;flex-direction:column;align-items:flex-start;margin-bottom:11px;gap:8px}
+.vsc-name{font-size:16px;font-weight:700;color:var(--text-primary);width:100%}
 .vsc-phase{font-size:14px;color:var(--text-muted);font-family:monospace;margin-bottom:11px}
 
 .update-log-item{display:flex;gap:15px;padding:13px 0;border-bottom:1px solid var(--surface-2);flex-wrap:wrap;line-height:1.5}
