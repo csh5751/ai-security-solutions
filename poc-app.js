@@ -637,6 +637,7 @@ html+='</div>';
 html+='<div style="margin-bottom:14px;"><input type="text" id="covSearchInput" class="edit-field" style="width:280px;" placeholder="검색어 입력 (텍스트 컬럼 전체)" value="'+escapeAttr(covSearchText)+'"></div>';
 
 html+='<div class="coverage-table-wrap"><table class="progress-matrix coverage-matrix"><thead><tr>';
+html+='<th></th>';
 html+='<th class="sortable-th" data-cov-sort="category">구분'+covSortArrowHtml("category")+'</th>';
 html+='<th class="sortable-th" data-cov-sort="subCategory">상세 구분'+covSortArrowHtml("subCategory")+'</th>';
 html+='<th class="sortable-th" data-cov-sort="example">예시'+covSortArrowHtml("example")+'</th>';
@@ -679,19 +680,47 @@ var addCovBtn=document.getElementById("addCovRowBtn");
 if(addCovBtn)addCovBtn.onclick=addCovRow;
 }
 
+function computeCovGroups(rows){
+var catSpan=new Array(rows.length).fill(1);
+var subSpan=new Array(rows.length).fill(1);
+var groupParity=new Array(rows.length).fill(0);
+var i=0,groupIdx=0;
+while(i<rows.length){
+var j=i+1;
+while(j<rows.length&&rows[j].category===rows[i].category)j++;
+catSpan[i]=j-i;
+for(var t=i+1;t<j;t++)catSpan[t]=0;
+for(var t2=i;t2<j;t2++)groupParity[t2]=groupIdx%2;
+var k=i;
+while(k<j){
+var m=k+1;
+while(m<j&&rows[m].subCategory===rows[k].subCategory)m++;
+subSpan[k]=m-k;
+for(var t3=k+1;t3<m;t3++)subSpan[t3]=0;
+k=m;
+}
+groupIdx++;
+i=j;
+}
+return {catSpan:catSpan,subSpan:subSpan,groupParity:groupParity};
+}
+
 function renderCoverageBody(){
 var tbody=document.getElementById("coverageBody");
 var rows=filteredCovRows();
 rows=sortedCovRows(rows);
 var dragEnabled=editMode&&covCategoryFilter==="all"&&!covSearchText.trim()&&!covSortState.field;
-var colCount=7+pocVendors.length+(editMode?1:0);
+var colCount=8+pocVendors.length+(editMode?1:0);
+var groups=computeCovGroups(rows);
 var html="";
-rows.forEach(function(r){
+rows.forEach(function(r,idx){
 var handleCls="drag-handle"+(dragEnabled?"":" disabled");
 var handleTitle=dragEnabled?"드래그해서 순서 변경":"필터/검색/정렬 해제 후 전체 보기(편집 모드)에서만 순서 변경 가능";
-html+='<tr'+(dragEnabled?' draggable="true"':'')+' data-row-id="'+escapeAttr(r.id)+'">';
+var trCls=groups.groupParity[idx]?' class="cov-group-alt"':'';
+html+='<tr'+trCls+(dragEnabled?' draggable="true"':'')+' data-row-id="'+escapeAttr(r.id)+'">';
+html+='<td class="cov-drag-td"><span class="'+handleCls+'" title="'+handleTitle+'">⠿</span></td>';
 if(editMode){
-html+='<td><span class="'+handleCls+'" title="'+handleTitle+'">⠿</span> <input class="edit-field" data-field="category" type="text" value="'+escapeAttr(r.category)+'" style="width:100px;"></td>';
+html+='<td><input class="edit-field" data-field="category" type="text" value="'+escapeAttr(r.category)+'" style="width:100px;"></td>';
 html+='<td><input class="edit-field" data-field="subCategory" type="text" value="'+escapeAttr(r.subCategory)+'" style="width:110px;"></td>';
 html+='<td><textarea class="edit-field" data-field="example" rows="2" style="width:140px;">'+escapeAttr(r.example)+'</textarea></td>';
 html+='<td><textarea class="edit-field" data-field="description" rows="2" style="width:170px;">'+escapeAttr(r.description)+'</textarea></td>';
@@ -708,8 +737,8 @@ html+='<td class="cov-vendor-td"><select class="edit-field cov-vendor-select" da
 });
 html+='<td><button class="filter-chip cov-save-btn" data-row-id="'+escapeAttr(r.id)+'">저장</button><button class="filter-chip cov-delete-btn" data-row-id="'+escapeAttr(r.id)+'" style="margin-top:6px;">삭제</button><span class="edit-save-status"></span></td>';
 }else{
-html+='<td><span class="'+handleCls+'" title="'+handleTitle+'">⠿</span> '+escapeAttr(r.category)+'</td>';
-html+='<td>'+escapeAttr(r.subCategory)+'</td>';
+if(groups.catSpan[idx]>0)html+='<td class="cov-group-cell"'+(groups.catSpan[idx]>1?' rowspan="'+groups.catSpan[idx]+'"':'')+'>'+escapeAttr(r.category)+'</td>';
+if(groups.subSpan[idx]>0)html+='<td class="cov-group-cell"'+(groups.subSpan[idx]>1?' rowspan="'+groups.subSpan[idx]+'"':'')+'>'+escapeAttr(r.subCategory)+'</td>';
 html+='<td>'+escapeAttr(r.example)+'</td>';
 html+='<td>'+escapeAttr(r.description)+'</td>';
 html+='<td>'+escapeAttr(r.controlTarget)+'</td>';

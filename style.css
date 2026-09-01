@@ -68,6 +68,7 @@
 *{margin:0;padding:0;box-sizing:border-box;font-family:'Segoe UI','Malgun Gothic','Pretendard',sans-serif}
 body{background:var(--bg);color:var(--text-body);padding:32px 28px;min-height:100vh;line-height:1.6;font-size:16.5px;transition:background .15s,color .15s}
 .container{max-width:1480px;margin:0 auto}
+body[data-page="coverage"] .container{max-width:none}
 .loading{color:var(--accent-text);text-align:center;padding:50px;font-size:16.5px;font-family:monospace}
 .hero{display:flex;align-items:center;justify-content:space-between;padding:28px 0 36px;border-bottom:1px solid var(--border);margin-bottom:32px}
 .hero h1{font-size:34px;font-weight:800;color:var(--text-primary);margin-bottom:8px;letter-spacing:-.5px}
@@ -338,8 +339,11 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 
 /* ---- Coverage matrix page (coverage.html) ---- */
 .coverage-table-wrap{overflow-x:auto}
-.coverage-matrix{min-width:1600px}
+.coverage-matrix{min-width:1600px;width:100%}
 .coverage-matrix td{vertical-align:top}
+.coverage-matrix td.cov-drag-td{width:24px;padding-left:8px!important;padding-right:2px!important}
+.coverage-matrix td.cov-group-cell{vertical-align:middle;border-left:2px solid var(--border)}
+.coverage-matrix tr.cov-group-alt td{background:var(--surface-2)}
 .cov-vendor-th{font-size:11px;padding:0 6px 9px;white-space:nowrap;text-align:center!important}
 .cov-vendor-td{padding:10px 6px!important;text-align:center!important}
 .cov-cell{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--border-strong)}
