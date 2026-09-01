@@ -59,7 +59,14 @@ dataSource="fallback";
 document.addEventListener("DOMContentLoaded",function(){
 var page=document.body.getAttribute("data-page");
 loadData().then(function(){
-if(page==="dashboard")renderDashboard();
+if(page==="dashboard"){
+renderDashboard();
+var vendorNameFitTimer;
+window.addEventListener("resize",function(){
+clearTimeout(vendorNameFitTimer);
+vendorNameFitTimer=setTimeout(fitVendorNames,150);
+});
+}
 else if(page==="progress")renderProgress();
 else if(page==="timeline")renderTimeline();
 else if(page==="reports")renderReports();
@@ -177,6 +184,20 @@ html+='<a class="quick-nav-card" href="reports.html"><div class="qnc-title">ÌèâÍ
 html+='</div>';
 
 root.innerHTML=html;
+fitVendorNames();
+}
+
+function fitVendorNames(){
+var els=document.querySelectorAll(".vsc-name");
+for(var i=0;i<els.length;i++){
+var el=els[i];
+el.style.fontSize="";
+var size=16;
+while(el.scrollWidth>el.clientWidth&&size>11){
+size-=0.5;
+el.style.fontSize=size+"px";
+}
+}
 }
 
 function renderProgress(){
