@@ -104,5 +104,24 @@ export async function onRequestPut(context) {
     return json(doc);
   }
 
+  if (action === "import") {
+    var incoming = Array.isArray(body.rows) ? body.rows : [];
+    doc.covRows = incoming.map(function (r) {
+      return {
+        id: (r && r.id) || makeRowId(),
+        category: String((r && r.category) || ""),
+        subCategory: String((r && r.subCategory) || ""),
+        example: String((r && r.example) || ""),
+        description: String((r && r.description) || ""),
+        controlTarget: String((r && r.controlTarget) || ""),
+        controlMethod: String((r && r.controlMethod) || ""),
+        solutionMeans: String((r && r.solutionMeans) || ""),
+        coverage: normalizeCoverage(r && r.coverage)
+      };
+    });
+    await saveDoc(kv, doc);
+    return json(doc);
+  }
+
   return json({ error: "unknown action" }, 400);
 }
