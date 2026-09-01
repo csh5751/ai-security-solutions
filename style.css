@@ -338,8 +338,8 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 #reorderStatus:empty{margin-left:0}
 
 /* ---- Coverage matrix page (coverage.html) ---- */
-.coverage-table-wrap{overflow-x:auto;overflow-y:visible}
-.coverage-matrix{min-width:1800px;width:100%;border-spacing:0;border-collapse:separate;font-size:12px;table-layout:fixed}
+.coverage-table-wrap{overflow:auto;max-height:75vh}
+.coverage-matrix{min-width:2650px;width:100%;border-spacing:0;border-collapse:separate;font-size:12px;table-layout:fixed}
 .coverage-matrix th,.coverage-matrix td{padding:6px 7px;border-right:1px solid var(--border);border-top:none!important;border-bottom:1px solid var(--border)}
 .coverage-matrix th:first-child,.coverage-matrix td:first-child{border-radius:0;border-left:1px solid var(--border)}
 .coverage-matrix th:last-child,.coverage-matrix td:last-child{border-radius:0}
@@ -347,22 +347,22 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 .coverage-matrix tr.cov-group-alt td{background:var(--surface-2)}
 .coverage-matrix tr.cov-group-start td{border-top:2px solid var(--border-strong)!important}
 
-/* frozen (sticky) columns: drag handle + 7 text columns, left of the vendor coverage columns */
+/* frozen (sticky) columns: drag handle + 구분/상세구분/설명/예시/주요통제대상/통제방식/솔루션통제수단, left of the vendor coverage columns */
 .coverage-matrix th:nth-child(1),.coverage-matrix td:nth-child(1){width:26px;position:sticky;left:0;z-index:2}
-.coverage-matrix th:nth-child(2),.coverage-matrix td:nth-child(2){width:68px;position:sticky;left:26px;z-index:2}
-.coverage-matrix th:nth-child(3),.coverage-matrix td:nth-child(3){width:86px;position:sticky;left:94px;z-index:2}
-.coverage-matrix th:nth-child(4),.coverage-matrix td:nth-child(4){width:150px;position:sticky;left:180px;z-index:2}
-.coverage-matrix th:nth-child(5),.coverage-matrix td:nth-child(5){width:190px;position:sticky;left:330px;z-index:2}
-.coverage-matrix th:nth-child(6),.coverage-matrix td:nth-child(6){width:88px;position:sticky;left:520px;z-index:2}
-.coverage-matrix th:nth-child(7),.coverage-matrix td:nth-child(7){width:120px;position:sticky;left:608px;z-index:2}
-.coverage-matrix th:nth-child(8),.coverage-matrix td:nth-child(8){width:120px;position:sticky;left:728px;z-index:2;border-right:2px solid var(--border-strong)}
+.coverage-matrix th:nth-child(2),.coverage-matrix td:nth-child(2){width:140px;position:sticky;left:26px;z-index:2}
+.coverage-matrix th:nth-child(3),.coverage-matrix td:nth-child(3){width:170px;position:sticky;left:166px;z-index:2;padding-left:16px}
+.coverage-matrix th:nth-child(4),.coverage-matrix td:nth-child(4){width:210px;position:sticky;left:336px;z-index:2;padding-left:26px}
+.coverage-matrix th:nth-child(5),.coverage-matrix td:nth-child(5){width:170px;position:sticky;left:546px;z-index:2}
+.coverage-matrix th:nth-child(6),.coverage-matrix td:nth-child(6){width:90px;position:sticky;left:716px;z-index:2}
+.coverage-matrix th:nth-child(7),.coverage-matrix td:nth-child(7){width:120px;position:sticky;left:806px;z-index:2}
+.coverage-matrix th:nth-child(8),.coverage-matrix td:nth-child(8){width:120px;position:sticky;left:926px;z-index:2;border-right:2px solid var(--border-strong)}
 .coverage-matrix thead th{position:sticky;top:0;background:var(--bg);z-index:3}
 .coverage-matrix thead th:nth-child(1),.coverage-matrix thead th:nth-child(2),.coverage-matrix thead th:nth-child(3),
 .coverage-matrix thead th:nth-child(4),.coverage-matrix thead th:nth-child(5),.coverage-matrix thead th:nth-child(6),
 .coverage-matrix thead th:nth-child(7),.coverage-matrix thead th:nth-child(8){z-index:4}
 .coverage-matrix .edit-field{width:100%;box-sizing:border-box;font-size:11px;padding:4px 5px}
 
-.cov-vendor-th{width:86px;font-size:10px;padding:6px 4px;white-space:normal;text-align:center!important;line-height:1.3;word-break:keep-all}
+.cov-vendor-th{width:130px;font-size:10px;padding:6px 5px;white-space:normal;text-align:center!important;line-height:1.3;word-break:keep-all}
 .cov-vendor-logo{display:block;width:18px;height:18px;margin:0 auto 3px;object-fit:contain;border-radius:3px}
 .cov-vendor-name{display:block}
 .cov-vendor-td{padding:5px 3px!important;text-align:center!important}

@@ -32,7 +32,8 @@ var VENDOR_LOGO={
 "SentinelOne":"logos/sentinelone.png",
 "Onyx Security":"logos/onyx-security.png",
 "Airia":"logos/airia.png",
-"Akto":"logos/akto.png"
+"Akto":"logos/akto.png",
+"Check Point Workforce AI Security":"logos/check-point-workforce-ai-security.png"
 };
 var EXAMPLE_ICONS={
 "Adobe Acrobat AI Assistant":["adobe"],
@@ -722,8 +723,8 @@ html+='<div class="coverage-table-wrap"><table class="progress-matrix coverage-m
 html+='<th></th>';
 html+='<th class="sortable-th" data-cov-sort="category">구분'+covSortArrowHtml("category")+'</th>';
 html+='<th class="sortable-th" data-cov-sort="subCategory">상세 구분'+covSortArrowHtml("subCategory")+'</th>';
-html+='<th class="sortable-th" data-cov-sort="example">예시'+covSortArrowHtml("example")+'</th>';
 html+='<th class="sortable-th" data-cov-sort="description">설명'+covSortArrowHtml("description")+'</th>';
+html+='<th class="sortable-th" data-cov-sort="example">예시'+covSortArrowHtml("example")+'</th>';
 html+='<th class="sortable-th" data-cov-sort="controlTarget">주요 통제 대상'+covSortArrowHtml("controlTarget")+'</th>';
 html+='<th class="sortable-th" data-cov-sort="controlMethod">통제 방식'+covSortArrowHtml("controlMethod")+'</th>';
 html+='<th class="sortable-th" data-cov-sort="solutionMeans">솔루션 통제 수단'+covSortArrowHtml("solutionMeans")+'</th>';
@@ -769,15 +770,19 @@ if(addCovBtn)addCovBtn.onclick=addCovRow;
 function computeCovGroups(rows){
 var groupParity=new Array(rows.length).fill(0);
 var groupStart=new Array(rows.length).fill(false);
+var subStart=new Array(rows.length).fill(false);
+var descStart=new Array(rows.length).fill(false);
 var groupIdx=0;
 for(var i=0;i<rows.length;i++){
 if(i===0||rows[i].category!==rows[i-1].category){
 if(i>0)groupIdx++;
 groupStart[i]=true;
 }
+subStart[i]=i===0?true:(groupStart[i]||rows[i].subCategory!==rows[i-1].subCategory);
+descStart[i]=i===0?true:(subStart[i]||rows[i].description!==rows[i-1].description);
 groupParity[i]=groupIdx%2;
 }
-return {groupParity:groupParity,groupStart:groupStart};
+return {groupParity:groupParity,groupStart:groupStart,subStart:subStart,descStart:descStart};
 }
 
 function renderCoverageBody(){
@@ -798,8 +803,8 @@ html+='<td class="cov-drag-td"><span class="'+handleCls+'" title="'+handleTitle+
 if(editMode){
 html+='<td><input class="edit-field" data-field="category" type="text" value="'+escapeAttr(r.category)+'"></td>';
 html+='<td><input class="edit-field" data-field="subCategory" type="text" value="'+escapeAttr(r.subCategory)+'"></td>';
-html+='<td><textarea class="edit-field" data-field="example" rows="2">'+escapeAttr(r.example)+'</textarea></td>';
 html+='<td><textarea class="edit-field" data-field="description" rows="2">'+escapeAttr(r.description)+'</textarea></td>';
+html+='<td><textarea class="edit-field" data-field="example" rows="2">'+escapeAttr(r.example)+'</textarea></td>';
 html+='<td><input class="edit-field" data-field="controlTarget" type="text" value="'+escapeAttr(r.controlTarget)+'"></td>';
 html+='<td><textarea class="edit-field" data-field="controlMethod" rows="2">'+escapeAttr(r.controlMethod)+'</textarea></td>';
 html+='<td><textarea class="edit-field" data-field="solutionMeans" rows="2">'+escapeAttr(r.solutionMeans)+'</textarea></td>';
@@ -813,10 +818,10 @@ html+='<td class="cov-vendor-td"><select class="edit-field cov-vendor-select" da
 });
 html+='<td><button class="filter-chip cov-save-btn" data-row-id="'+escapeAttr(r.id)+'">저장</button><button class="filter-chip cov-delete-btn" data-row-id="'+escapeAttr(r.id)+'" style="margin-top:6px;">삭제</button><span class="edit-save-status"></span></td>';
 }else{
-html+='<td>'+escapeAttr(r.category)+'</td>';
-html+='<td>'+escapeAttr(r.subCategory)+'</td>';
+html+='<td>'+(groups.groupStart[idx]?escapeAttr(r.category):'')+'</td>';
+html+='<td>'+(groups.subStart[idx]?escapeAttr(r.subCategory):'')+'</td>';
+html+='<td>'+(groups.descStart[idx]?escapeAttr(r.description):'')+'</td>';
 html+='<td>'+exampleIconHtml(r.example)+escapeAttr(r.example)+'</td>';
-html+='<td>'+escapeAttr(r.description)+'</td>';
 html+='<td>'+escapeAttr(r.controlTarget)+'</td>';
 html+='<td>'+escapeAttr(r.controlMethod)+'</td>';
 html+='<td>'+escapeAttr(r.solutionMeans)+'</td>';
