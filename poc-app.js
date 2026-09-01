@@ -21,6 +21,32 @@ var covSearchText="";
 var covSortState={field:null,dir:null};
 var COVERAGE_LABELS={full:"전체지원",partial:"부분지원",none:"미지원",unknown:"확인필요"};
 var COVERAGE_VALUES=["full","partial","none","unknown"];
+var VENDOR_LOGO={
+"Zenity":"logos/zenity.png",
+"Grip Security":"logos/grip-security.png",
+"Straiker":"logos/straiker.png",
+"MS Agent 365":"logos/ms-agent-365.png",
+"Noma Security":"logos/noma-security.png",
+"Palo Alto Prisma AIRS":"logos/palo-alto-prisma-airs.png",
+"CrowdStrike AIDR":"logos/crowdstrike-aidr.png",
+"SentinelOne":"logos/sentinelone.png",
+"Onyx Security":"logos/onyx-security.png",
+"Airia":"logos/airia.png",
+"Akto":"logos/akto.png"
+};
+var VENDOR_SHORT={
+"Zenity":"Zenity",
+"Grip Security":"Grip",
+"Straiker":"Straiker",
+"MS Agent 365":"Agent365",
+"Noma Security":"Noma",
+"Palo Alto Prisma AIRS":"Prisma",
+"CrowdStrike AIDR":"CrowdStrike",
+"SentinelOne":"S1",
+"Onyx Security":"Onyx",
+"Airia":"Airia",
+"Akto":"Akto"
+};
 
 function applyServerData(d){
 if(!d)return;
@@ -645,7 +671,12 @@ html+='<th class="sortable-th" data-cov-sort="description">설명'+covSortArrowH
 html+='<th class="sortable-th" data-cov-sort="controlTarget">주요 통제 대상'+covSortArrowHtml("controlTarget")+'</th>';
 html+='<th class="sortable-th" data-cov-sort="controlMethod">통제 방식'+covSortArrowHtml("controlMethod")+'</th>';
 html+='<th class="sortable-th" data-cov-sort="solutionMeans">솔루션 통제 수단'+covSortArrowHtml("solutionMeans")+'</th>';
-pocVendors.forEach(function(v){html+='<th class="cov-vendor-th" title="'+escapeAttr(v.name)+'">'+v.name+'</th>';});
+pocVendors.forEach(function(v){
+var logo=VENDOR_LOGO[v.name];
+var short=VENDOR_SHORT[v.name]||v.name;
+var icon=logo?'<img class="cov-vendor-logo" src="'+escapeAttr(logo)+'" alt="" loading="lazy">':'';
+html+='<th class="cov-vendor-th" title="'+escapeAttr(v.name)+'">'+icon+'<span class="cov-vendor-name">'+escapeAttr(short)+'</span></th>';
+});
 if(editMode)html+='<th></th>';
 html+='</tr></thead><tbody id="coverageBody"></tbody></table></div>';
 
@@ -681,28 +712,17 @@ if(addCovBtn)addCovBtn.onclick=addCovRow;
 }
 
 function computeCovGroups(rows){
-var catSpan=new Array(rows.length).fill(1);
-var subSpan=new Array(rows.length).fill(1);
 var groupParity=new Array(rows.length).fill(0);
-var i=0,groupIdx=0;
-while(i<rows.length){
-var j=i+1;
-while(j<rows.length&&rows[j].category===rows[i].category)j++;
-catSpan[i]=j-i;
-for(var t=i+1;t<j;t++)catSpan[t]=0;
-for(var t2=i;t2<j;t2++)groupParity[t2]=groupIdx%2;
-var k=i;
-while(k<j){
-var m=k+1;
-while(m<j&&rows[m].subCategory===rows[k].subCategory)m++;
-subSpan[k]=m-k;
-for(var t3=k+1;t3<m;t3++)subSpan[t3]=0;
-k=m;
+var groupStart=new Array(rows.length).fill(false);
+var groupIdx=0;
+for(var i=0;i<rows.length;i++){
+if(i===0||rows[i].category!==rows[i-1].category){
+if(i>0)groupIdx++;
+groupStart[i]=true;
 }
-groupIdx++;
-i=j;
+groupParity[i]=groupIdx%2;
 }
-return {catSpan:catSpan,subSpan:subSpan,groupParity:groupParity};
+return {groupParity:groupParity,groupStart:groupStart};
 }
 
 function renderCoverageBody(){
@@ -716,17 +736,18 @@ var html="";
 rows.forEach(function(r,idx){
 var handleCls="drag-handle"+(dragEnabled?"":" disabled");
 var handleTitle=dragEnabled?"드래그해서 순서 변경":"필터/검색/정렬 해제 후 전체 보기(편집 모드)에서만 순서 변경 가능";
-var trCls=groups.groupParity[idx]?' class="cov-group-alt"':'';
+var trCls=(groups.groupParity[idx]?' cov-group-alt':'')+(groups.groupStart[idx]?' cov-group-start':'');
+trCls=trCls.trim()?' class="'+trCls.trim()+'"':'';
 html+='<tr'+trCls+(dragEnabled?' draggable="true"':'')+' data-row-id="'+escapeAttr(r.id)+'">';
 html+='<td class="cov-drag-td"><span class="'+handleCls+'" title="'+handleTitle+'">⠿</span></td>';
 if(editMode){
-html+='<td><input class="edit-field" data-field="category" type="text" value="'+escapeAttr(r.category)+'" style="width:100px;"></td>';
-html+='<td><input class="edit-field" data-field="subCategory" type="text" value="'+escapeAttr(r.subCategory)+'" style="width:110px;"></td>';
-html+='<td><textarea class="edit-field" data-field="example" rows="2" style="width:140px;">'+escapeAttr(r.example)+'</textarea></td>';
-html+='<td><textarea class="edit-field" data-field="description" rows="2" style="width:170px;">'+escapeAttr(r.description)+'</textarea></td>';
-html+='<td><input class="edit-field" data-field="controlTarget" type="text" value="'+escapeAttr(r.controlTarget)+'" style="width:110px;"></td>';
-html+='<td><textarea class="edit-field" data-field="controlMethod" rows="2" style="width:140px;">'+escapeAttr(r.controlMethod)+'</textarea></td>';
-html+='<td><textarea class="edit-field" data-field="solutionMeans" rows="2" style="width:140px;">'+escapeAttr(r.solutionMeans)+'</textarea></td>';
+html+='<td><input class="edit-field" data-field="category" type="text" value="'+escapeAttr(r.category)+'"></td>';
+html+='<td><input class="edit-field" data-field="subCategory" type="text" value="'+escapeAttr(r.subCategory)+'"></td>';
+html+='<td><textarea class="edit-field" data-field="example" rows="2">'+escapeAttr(r.example)+'</textarea></td>';
+html+='<td><textarea class="edit-field" data-field="description" rows="2">'+escapeAttr(r.description)+'</textarea></td>';
+html+='<td><input class="edit-field" data-field="controlTarget" type="text" value="'+escapeAttr(r.controlTarget)+'"></td>';
+html+='<td><textarea class="edit-field" data-field="controlMethod" rows="2">'+escapeAttr(r.controlMethod)+'</textarea></td>';
+html+='<td><textarea class="edit-field" data-field="solutionMeans" rows="2">'+escapeAttr(r.solutionMeans)+'</textarea></td>';
 pocVendors.forEach(function(v){
 var cur=(r.coverage&&r.coverage[v.name])||"unknown";
 var options="";
@@ -737,8 +758,8 @@ html+='<td class="cov-vendor-td"><select class="edit-field cov-vendor-select" da
 });
 html+='<td><button class="filter-chip cov-save-btn" data-row-id="'+escapeAttr(r.id)+'">저장</button><button class="filter-chip cov-delete-btn" data-row-id="'+escapeAttr(r.id)+'" style="margin-top:6px;">삭제</button><span class="edit-save-status"></span></td>';
 }else{
-if(groups.catSpan[idx]>0)html+='<td class="cov-group-cell"'+(groups.catSpan[idx]>1?' rowspan="'+groups.catSpan[idx]+'"':'')+'>'+escapeAttr(r.category)+'</td>';
-if(groups.subSpan[idx]>0)html+='<td class="cov-group-cell"'+(groups.subSpan[idx]>1?' rowspan="'+groups.subSpan[idx]+'"':'')+'>'+escapeAttr(r.subCategory)+'</td>';
+html+='<td>'+escapeAttr(r.category)+'</td>';
+html+='<td>'+escapeAttr(r.subCategory)+'</td>';
 html+='<td>'+escapeAttr(r.example)+'</td>';
 html+='<td>'+escapeAttr(r.description)+'</td>';
 html+='<td>'+escapeAttr(r.controlTarget)+'</td>';
