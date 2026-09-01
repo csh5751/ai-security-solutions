@@ -2,6 +2,7 @@ var navLinks=[
 {page:"dashboard",href:"index.html",label:"Home"},
 {page:"map",href:"map.html",label:"Vendor Map"},
 {page:"progress",href:"progress.html",label:"PoC 진행현황"},
+{page:"coverage",href:"coverage.html",label:"통제 매트릭스"},
 {page:"timeline",href:"timeline.html",label:"로드맵"},
 {page:"reports",href:"reports.html",label:"평가 리포트"}
 ];

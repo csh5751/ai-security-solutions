@@ -29,3 +29,5 @@ var pocVendors=[
 var recentUpdates=[
 {date:"2026-08-31",vendor:"System",message:"PoC 진행 단계 체계가 9단계로 재정비되었습니다 (샘플 데이터)"}
 ];
+
+var covRows=[];

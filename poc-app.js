@@ -16,13 +16,26 @@ var editMode=false;
 var editToken=null;
 try{editToken=localStorage.getItem("pocEditToken")}catch(e){}
 
+var covCategoryFilter="all";
+var covSearchText="";
+var covSortState={field:null,dir:null};
+var COVERAGE_LABELS={full:"전체지원",partial:"부분지원",none:"미지원",unknown:"확인필요"};
+var COVERAGE_VALUES=["full","partial","none","unknown"];
+
 function applyServerData(d){
 if(!d)return;
 if(d.pocMeta)pocMeta=d.pocMeta;
 if(Array.isArray(d.pocPhases))pocPhases=d.pocPhases;
 if(Array.isArray(d.pocVendors))pocVendors=d.pocVendors;
 if(Array.isArray(d.recentUpdates))recentUpdates=d.recentUpdates;
+if(Array.isArray(d.covRows))covRows=d.covRows;
 mergeMapVendors(d);
+}
+
+function rerenderCurrentPage(){
+var page=document.body.getAttribute("data-page");
+if(page==="progress")renderProgress();
+else if(page==="coverage")renderCoverage();
 }
 
 function mergeMapVendors(doc){
@@ -68,6 +81,7 @@ vendorNameFitTimer=setTimeout(fitVendorNames,150);
 });
 }
 else if(page==="progress")renderProgress();
+else if(page==="coverage")renderCoverage();
 else if(page==="timeline")renderTimeline();
 else if(page==="reports")renderReports();
 });
@@ -253,12 +267,12 @@ if(addBtn)addBtn.onclick=showAddVendorPrompt;
 function onEditToggleClick(){
 if(editMode){
 editMode=false;
-renderProgress();
+rerenderCurrentPage();
 return;
 }
 if(editToken){
 editMode=true;
-renderProgress();
+rerenderCurrentPage();
 return;
 }
 showLoginPrompt();
@@ -291,7 +305,7 @@ var data=await res.json();
 editToken=data.token;
 try{localStorage.setItem("pocEditToken",editToken)}catch(e){}
 editMode=true;
-renderProgress();
+rerenderCurrentPage();
 }catch(e){
 errEl.textContent="비밀번호가 올바르지 않습니다.";
 }
@@ -553,6 +567,365 @@ applyServerData(updated);
 dataSource="live";
 if(statusEl)statusEl.textContent="순서 저장됨 ✓";
 renderProgressBody();
+}catch(e){
+if(statusEl)statusEl.textContent="순서 저장 실패";
+}
+}
+
+function covSortArrowHtml(field){
+if(covSortState.field!==field)return '<span class="sort-arrow"></span>';
+return '<span class="sort-arrow active">'+(covSortState.dir==="asc"?"▲":"▼")+'</span>';
+}
+
+function onCovSortClick(field){
+if(covSortState.field!==field){
+covSortState.field=field;
+covSortState.dir="asc";
+}else if(covSortState.dir==="asc"){
+covSortState.dir="desc";
+}else{
+covSortState.field=null;
+covSortState.dir=null;
+}
+renderCoverage();
+}
+
+function filteredCovRows(){
+var rows=covRows.filter(function(r){return covCategoryFilter==="all"||r.category===covCategoryFilter;});
+var q=covSearchText.trim().toLowerCase();
+if(q){
+rows=rows.filter(function(r){
+return ["category","subCategory","example","description","controlTarget","controlMethod","solutionMeans"].some(function(f){
+return String(r[f]||"").toLowerCase().indexOf(q)!==-1;
+});
+});
+}
+return rows;
+}
+
+function sortedCovRows(list){
+if(!covSortState.field)return list;
+var field=covSortState.field;
+var dir=covSortState.dir;
+var copy=list.slice();
+copy.sort(function(a,b){
+var av=String(a[field]||"").toLowerCase();
+var bv=String(b[field]||"").toLowerCase();
+if(av<bv)return dir==="asc"?-1:1;
+if(av>bv)return dir==="asc"?1:-1;
+return 0;
+});
+return copy;
+}
+
+function renderCoverage(){
+var root=document.getElementById("root");
+var covCategories=[];
+covRows.forEach(function(r){if(r.category&&covCategories.indexOf(r.category)===-1)covCategories.push(r.category);});
+
+var html=sampleBanner();
+html+='<div class="hero"><div><h1>통제 <span class="accent">매트릭스</span></h1><p>// 통제 항목 × 벤더 Coverage</p></div><span class="badge">'+covRows.length+' ITEMS</span></div>';
+
+html+='<div class="filter-chips">';
+html+='<span class="filter-chip'+(covCategoryFilter==="all"?' active':'')+'" data-cov-filter="all">전체</span>';
+covCategories.forEach(function(c){
+html+='<span class="filter-chip'+(c===covCategoryFilter?' active':'')+'" data-cov-filter="'+escapeAttr(c)+'">'+c+'</span>';
+});
+html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;"><span id="covActionStatus" class="edit-save-status"></span><span id="editLoginBox" style="display:none;gap:8px;align-items:center;"></span>'+(editMode?'<button class="filter-chip" id="addCovRowBtn">+ 항목 추가</button>':'')+'<button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
+html+='</div>';
+
+html+='<div style="margin-bottom:14px;"><input type="text" id="covSearchInput" class="edit-field" style="width:280px;" placeholder="검색어 입력 (텍스트 컬럼 전체)" value="'+escapeAttr(covSearchText)+'"></div>';
+
+html+='<div class="coverage-table-wrap"><table class="progress-matrix coverage-matrix"><thead><tr>';
+html+='<th class="sortable-th" data-cov-sort="category">구분'+covSortArrowHtml("category")+'</th>';
+html+='<th class="sortable-th" data-cov-sort="subCategory">상세 구분'+covSortArrowHtml("subCategory")+'</th>';
+html+='<th class="sortable-th" data-cov-sort="example">예시'+covSortArrowHtml("example")+'</th>';
+html+='<th class="sortable-th" data-cov-sort="description">설명'+covSortArrowHtml("description")+'</th>';
+html+='<th class="sortable-th" data-cov-sort="controlTarget">주요 통제 대상'+covSortArrowHtml("controlTarget")+'</th>';
+html+='<th class="sortable-th" data-cov-sort="controlMethod">통제 방식'+covSortArrowHtml("controlMethod")+'</th>';
+html+='<th class="sortable-th" data-cov-sort="solutionMeans">솔루션 통제 수단'+covSortArrowHtml("solutionMeans")+'</th>';
+pocVendors.forEach(function(v){html+='<th class="cov-vendor-th" title="'+escapeAttr(v.name)+'">'+v.name+'</th>';});
+if(editMode)html+='<th></th>';
+html+='</tr></thead><tbody id="coverageBody"></tbody></table></div>';
+
+root.innerHTML=html;
+renderCoverageBody();
+
+var covChips=document.querySelectorAll(".filter-chip[data-cov-filter]");
+for(var i=0;i<covChips.length;i++){
+covChips[i].onclick=function(){
+covCategoryFilter=this.getAttribute("data-cov-filter");
+var all=document.querySelectorAll(".filter-chip[data-cov-filter]");
+for(var j=0;j<all.length;j++)all[j].className="filter-chip";
+this.className="filter-chip active";
+renderCoverageBody();
+};
+}
+
+var covSortThs=document.querySelectorAll("[data-cov-sort]");
+for(var s=0;s<covSortThs.length;s++){
+covSortThs[s].onclick=function(){
+onCovSortClick(this.getAttribute("data-cov-sort"));
+};
+}
+
+document.getElementById("covSearchInput").addEventListener("input",function(){
+covSearchText=this.value;
+renderCoverageBody();
+});
+
+document.getElementById("editToggleBtn").onclick=onEditToggleClick;
+var addCovBtn=document.getElementById("addCovRowBtn");
+if(addCovBtn)addCovBtn.onclick=addCovRow;
+}
+
+function renderCoverageBody(){
+var tbody=document.getElementById("coverageBody");
+var rows=filteredCovRows();
+rows=sortedCovRows(rows);
+var dragEnabled=editMode&&covCategoryFilter==="all"&&!covSearchText.trim()&&!covSortState.field;
+var colCount=7+pocVendors.length+(editMode?1:0);
+var html="";
+rows.forEach(function(r){
+var handleCls="drag-handle"+(dragEnabled?"":" disabled");
+var handleTitle=dragEnabled?"드래그해서 순서 변경":"필터/검색/정렬 해제 후 전체 보기(편집 모드)에서만 순서 변경 가능";
+html+='<tr'+(dragEnabled?' draggable="true"':'')+' data-row-id="'+escapeAttr(r.id)+'">';
+if(editMode){
+html+='<td><span class="'+handleCls+'" title="'+handleTitle+'">⠿</span> <input class="edit-field" data-field="category" type="text" value="'+escapeAttr(r.category)+'" style="width:100px;"></td>';
+html+='<td><input class="edit-field" data-field="subCategory" type="text" value="'+escapeAttr(r.subCategory)+'" style="width:110px;"></td>';
+html+='<td><textarea class="edit-field" data-field="example" rows="2" style="width:140px;">'+escapeAttr(r.example)+'</textarea></td>';
+html+='<td><textarea class="edit-field" data-field="description" rows="2" style="width:170px;">'+escapeAttr(r.description)+'</textarea></td>';
+html+='<td><input class="edit-field" data-field="controlTarget" type="text" value="'+escapeAttr(r.controlTarget)+'" style="width:110px;"></td>';
+html+='<td><textarea class="edit-field" data-field="controlMethod" rows="2" style="width:140px;">'+escapeAttr(r.controlMethod)+'</textarea></td>';
+html+='<td><textarea class="edit-field" data-field="solutionMeans" rows="2" style="width:140px;">'+escapeAttr(r.solutionMeans)+'</textarea></td>';
+pocVendors.forEach(function(v){
+var cur=(r.coverage&&r.coverage[v.name])||"unknown";
+var options="";
+COVERAGE_VALUES.forEach(function(cv){
+options+='<option value="'+cv+'"'+(cv===cur?" selected":"")+'>'+COVERAGE_LABELS[cv]+'</option>';
+});
+html+='<td class="cov-vendor-td"><select class="edit-field cov-vendor-select" data-vendor="'+escapeAttr(v.name)+'">'+options+'</select></td>';
+});
+html+='<td><button class="filter-chip cov-save-btn" data-row-id="'+escapeAttr(r.id)+'">저장</button><button class="filter-chip cov-delete-btn" data-row-id="'+escapeAttr(r.id)+'" style="margin-top:6px;">삭제</button><span class="edit-save-status"></span></td>';
+}else{
+html+='<td><span class="'+handleCls+'" title="'+handleTitle+'">⠿</span> '+escapeAttr(r.category)+'</td>';
+html+='<td>'+escapeAttr(r.subCategory)+'</td>';
+html+='<td>'+escapeAttr(r.example)+'</td>';
+html+='<td>'+escapeAttr(r.description)+'</td>';
+html+='<td>'+escapeAttr(r.controlTarget)+'</td>';
+html+='<td>'+escapeAttr(r.controlMethod)+'</td>';
+html+='<td>'+escapeAttr(r.solutionMeans)+'</td>';
+pocVendors.forEach(function(v){
+var cur=(r.coverage&&r.coverage[v.name])||"unknown";
+html+='<td class="cov-vendor-td"><span class="cov-cell cov-'+cur+'" title="'+escapeAttr(v.name)+': '+COVERAGE_LABELS[cur]+'"></span></td>';
+});
+}
+html+='</tr>';
+});
+if(!rows.length)html='<tr><td colspan="'+colCount+'" class="report-empty">'+(covRows.length?"조건에 맞는 항목이 없습니다.":'등록된 통제 항목이 없습니다. 편집 모드에서 "+ 항목 추가"로 시작하세요.')+'</td></tr>';
+tbody.innerHTML=html;
+if(editMode)wireCovEditableRows();
+wireCovDragRows();
+}
+
+function wireCovEditableRows(){
+var saveBtns=document.querySelectorAll(".cov-save-btn");
+for(var i=0;i<saveBtns.length;i++){
+saveBtns[i].onclick=function(){
+saveCovRow(this.getAttribute("data-row-id"),this);
+};
+}
+var delBtns=document.querySelectorAll(".cov-delete-btn");
+for(var j=0;j<delBtns.length;j++){
+delBtns[j].onclick=function(){
+if(confirm("이 통제 항목을 삭제하시겠습니까?"))deleteCovRow(this.getAttribute("data-row-id"));
+};
+}
+}
+
+async function saveCovRow(rowId,btn){
+var row=btn.closest("tr");
+var statusSpan=row.querySelector(".edit-save-status");
+statusSpan.textContent="저장 중...";
+var fields={};
+["category","subCategory","example","description","controlTarget","controlMethod","solutionMeans"].forEach(function(f){
+var el=row.querySelector('[data-field="'+f+'"]');
+fields[f]=el?el.value:"";
+});
+var coverage={};
+var selects=row.querySelectorAll(".cov-vendor-select");
+for(var i=0;i<selects.length;i++){
+coverage[selects[i].getAttribute("data-vendor")]=selects[i].value;
+}
+fields.coverage=coverage;
+try{
+var res=await fetch("/api/coverage",{
+method:"PUT",
+headers:{"Content-Type":"application/json","Authorization":"Bearer "+editToken},
+body:JSON.stringify({action:"update",rowId:rowId,fields:fields})
+});
+if(res.status===401){
+editToken=null;
+editMode=false;
+try{localStorage.removeItem("pocEditToken")}catch(e){}
+alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
+renderCoverage();
+return;
+}
+if(!res.ok)throw new Error("save failed");
+var updated=await res.json();
+applyServerData(updated);
+dataSource="live";
+statusSpan.textContent="저장됨 ✓";
+renderCoverageBody();
+}catch(e){
+statusSpan.textContent="저장 실패";
+}
+}
+
+async function deleteCovRow(rowId){
+var statusEl=document.getElementById("covActionStatus");
+if(statusEl)statusEl.textContent="삭제 중...";
+try{
+var res=await fetch("/api/coverage",{
+method:"PUT",
+headers:{"Content-Type":"application/json","Authorization":"Bearer "+editToken},
+body:JSON.stringify({action:"delete",rowId:rowId})
+});
+if(res.status===401){
+editToken=null;
+editMode=false;
+try{localStorage.removeItem("pocEditToken")}catch(e){}
+alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
+renderCoverage();
+return;
+}
+if(!res.ok)throw new Error("delete failed");
+var updated=await res.json();
+applyServerData(updated);
+dataSource="live";
+if(statusEl)statusEl.textContent="삭제됨 ✓";
+renderCoverageBody();
+}catch(e){
+if(statusEl)statusEl.textContent="삭제 실패";
+}
+}
+
+async function addCovRow(){
+var statusEl=document.getElementById("covActionStatus");
+if(statusEl)statusEl.textContent="추가 중...";
+try{
+var res=await fetch("/api/coverage",{
+method:"PUT",
+headers:{"Content-Type":"application/json","Authorization":"Bearer "+editToken},
+body:JSON.stringify({action:"add"})
+});
+if(res.status===401){
+editToken=null;
+editMode=false;
+try{localStorage.removeItem("pocEditToken")}catch(e){}
+alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
+renderCoverage();
+return;
+}
+if(!res.ok)throw new Error("add failed");
+var updated=await res.json();
+applyServerData(updated);
+dataSource="live";
+if(statusEl)statusEl.textContent="항목 추가됨";
+renderCoverage();
+}catch(e){
+if(statusEl)statusEl.textContent="추가 실패";
+}
+}
+
+function wireCovDragRows(){
+var tbody=document.getElementById("coverageBody");
+var rows=tbody.querySelectorAll("tr[draggable='true']");
+var dragSrc=null;
+for(var i=0;i<rows.length;i++){
+rows[i].addEventListener("dragstart",function(e){
+dragSrc=this;
+this.classList.add("dragging");
+if(e.dataTransfer){
+e.dataTransfer.effectAllowed="move";
+try{e.dataTransfer.setData("text/plain",this.getAttribute("data-row-id"));}catch(err){}
+}
+});
+rows[i].addEventListener("dragend",function(){
+this.classList.remove("dragging");
+var all=tbody.querySelectorAll("tr");
+for(var j=0;j<all.length;j++)all[j].classList.remove("drag-over-top","drag-over-bottom");
+dragSrc=null;
+});
+rows[i].addEventListener("dragover",function(e){
+e.preventDefault();
+if(e.dataTransfer)e.dataTransfer.dropEffect="move";
+if(!dragSrc||this===dragSrc)return;
+var rect=this.getBoundingClientRect();
+var midpoint=rect.top+rect.height/2;
+this.classList.remove("drag-over-top","drag-over-bottom");
+if(e.clientY<midpoint)this.classList.add("drag-over-top");
+else this.classList.add("drag-over-bottom");
+});
+rows[i].addEventListener("dragleave",function(){
+this.classList.remove("drag-over-top","drag-over-bottom");
+});
+rows[i].addEventListener("drop",function(e){
+e.preventDefault();
+this.classList.remove("drag-over-top","drag-over-bottom");
+if(!dragSrc||this===dragSrc)return;
+var srcId=dragSrc.getAttribute("data-row-id");
+var targetId=this.getAttribute("data-row-id");
+var rect=this.getBoundingClientRect();
+var midpoint=rect.top+rect.height/2;
+var insertAfter=e.clientY>=midpoint;
+reorderCovRows(srcId,targetId,insertAfter);
+});
+}
+}
+
+function reorderCovRows(srcId,targetId,insertAfter){
+var srcIdx=-1;
+for(var i=0;i<covRows.length;i++){if(covRows[i].id===srcId){srcIdx=i;break;}}
+if(srcIdx===-1)return;
+var srcItem=covRows[srcIdx];
+covRows.splice(srcIdx,1);
+var targetIdx=-1;
+for(var j=0;j<covRows.length;j++){if(covRows[j].id===targetId){targetIdx=j;break;}}
+if(targetIdx===-1){
+covRows.push(srcItem);
+}else{
+var insertIdx=insertAfter?targetIdx+1:targetIdx;
+covRows.splice(insertIdx,0,srcItem);
+}
+renderCoverageBody();
+saveCovReorder(covRows.map(function(r){return r.id;}));
+}
+
+async function saveCovReorder(ids){
+var statusEl=document.getElementById("covActionStatus");
+if(statusEl)statusEl.textContent="순서 저장 중...";
+try{
+var res=await fetch("/api/coverage",{
+method:"PUT",
+headers:{"Content-Type":"application/json","Authorization":"Bearer "+editToken},
+body:JSON.stringify({action:"reorder",order:ids})
+});
+if(res.status===401){
+editToken=null;
+editMode=false;
+try{localStorage.removeItem("pocEditToken")}catch(e){}
+alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
+renderCoverage();
+return;
+}
+if(!res.ok)throw new Error("save failed");
+var updated=await res.json();
+applyServerData(updated);
+dataSource="live";
+if(statusEl)statusEl.textContent="순서 저장됨 ✓";
+renderCoverageBody();
 }catch(e){
 if(statusEl)statusEl.textContent="순서 저장 실패";
 }

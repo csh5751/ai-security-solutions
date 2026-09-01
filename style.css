@@ -336,6 +336,19 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 .progress-matrix tr.drag-over-bottom td{box-shadow:inset 0 -2px 0 var(--accent)}
 #reorderStatus:empty{margin-left:0}
 
+/* ---- Coverage matrix page (coverage.html) ---- */
+.coverage-table-wrap{overflow-x:auto}
+.coverage-matrix{min-width:1600px}
+.coverage-matrix td{vertical-align:top}
+.cov-vendor-th{font-size:11px;padding:0 6px 9px;white-space:nowrap;text-align:center!important}
+.cov-vendor-td{padding:10px 6px!important;text-align:center!important}
+.cov-cell{display:inline-block;width:14px;height:14px;border-radius:50%;background:var(--border-strong)}
+.cov-cell.cov-full{background:var(--status-good)}
+.cov-cell.cov-partial{background:var(--status-warn)}
+.cov-cell.cov-none{background:var(--status-bad)}
+.cov-cell.cov-unknown{background:var(--text-faint);opacity:.5}
+#covActionStatus:empty{margin-left:0}
+
 /* ---- Timeline page (timeline.html) ---- */
 .timeline-header{display:grid;grid-template-columns:155px 1fr;gap:16px;margin-bottom:11px}
 .timeline-header-track{display:flex}
