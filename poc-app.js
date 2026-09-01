@@ -34,19 +34,75 @@ var VENDOR_LOGO={
 "Airia":"logos/airia.png",
 "Akto":"logos/akto.png"
 };
-var VENDOR_SHORT={
-"Zenity":"Zenity",
-"Grip Security":"Grip",
-"Straiker":"Straiker",
-"MS Agent 365":"Agent365",
-"Noma Security":"Noma",
-"Palo Alto Prisma AIRS":"Prisma",
-"CrowdStrike AIDR":"CrowdStrike",
-"SentinelOne":"S1",
-"Onyx Security":"Onyx",
-"Airia":"Airia",
-"Akto":"Akto"
+var EXAMPLE_ICONS={
+"Adobe Acrobat AI Assistant":["adobe"],
+"Adobe Experience Platform Agents":["adobe"],
+"Amazon Bedrock":["aws"],
+"Atlassian Rovo Agents / Jira 내 OOTB Rovo Agents":["atlassian"],
+"Atlassian Rovo Chat":["atlassian"],
+"Azure AI Foundry":["microsoft"],
+"Canva":["canva"],
+"ChatGPT Desktop/Codex, Claude Desktop/Cowork":["openai","anthropic"],
+"Claude Code":["anthropic"],
+"Claude Model":["anthropic"],
+"Codex":["openai"],
+"Codex CLI, Claude Code, Cursor CLI, Kiro CLI, Copilot CLI":["openai","anthropic","cursor","kiro","github"],
+"Cohere API":["cohere"],
+"Confluence":["atlassian"],
+"Copilot Studio":["microsoft"],
+"Cursor":["cursor"],
+"Cursor, Kiro":["cursor","kiro"],
+"Einstein / Salesforce Agentforce / Agentforce Builder":["salesforce"],
+"Figma AI":["figma"],
+"Fireworks AI":["fireworks"],
+"Gemini Enterprise Agent":["gemini"],
+"Gemini Model":["gemini"],
+"GitHub Copilot":["github"],
+"GitHub Copilot, Codex Extension, Claude Code Extension":["github","openai","anthropic"],
+"Google Vertex AI":["gcloud"],
+"Graph Connector":["microsoft"],
+"GroqCloud":["groq"],
+"Hugging Face Inference Endpoints":["huggingface"],
+"Jan":["jan"],
+"Joule Studio / Agent Builder":["sap"],
+"Kiro":["kiro"],
+"LLaMA-Factory":["github"],
+"LM Studio":["lmstudio"],
+"Microsoft Copilot":["microsoft"],
+"Mistral AI API / Studio":["mistral"],
+"Notion AI":["notion"],
+"Notion AI / Custom Agents":["notion"],
+"Now Assist / AI Agents / AI Agent Studio":["servicenow"],
+"OCI Generative AI":["oracle"],
+"Ollama":["ollama"],
+"OneDrive":["microsoft"],
+"OpenCode":["opencode"],
+"Oracle Fusion Cloud Applications":["oracle"],
+"Outlook":["microsoft"],
+"Palantir AIP":["palantir"],
+"Perplexity":["perplexity"],
+"Power Automate":["microsoft"],
+"Rovo Studio":["atlassian"],
+"SAP Joule Agents":["sap"],
+"SAP Joule Assistants":["sap"],
+"Salesforce Einstein Summary":["salesforce"],
+"ServiceNow Otto (Now Assist, Moveworks)":["servicenow"],
+"Sharepoint":["microsoft"],
+"Together AI":["together"],
+"Workday + Sana AI Agents":["workday"],
+"Workday Build / Flowise Agent Builder":["workday"],
+"Zendesk AI Agents":["zendesk"],
+"Zendesk Copilot":["zendesk"],
+"chatGPT Enterprise":["openai"],
+"llama.cpp":["github"],
+"openAI GPT":["openai"],
+"망고보드":["mangoboard"]
 };
+function exampleIconHtml(text){
+var slugs=EXAMPLE_ICONS[text];
+if(!slugs||!slugs.length)return "";
+return slugs.map(function(s){return '<img class="cov-example-icon" src="logos/ci/'+s+'.png" alt="" loading="lazy">';}).join("");
+}
 
 function applyServerData(d){
 if(!d)return;
@@ -673,9 +729,8 @@ html+='<th class="sortable-th" data-cov-sort="controlMethod">통제 방식'+covS
 html+='<th class="sortable-th" data-cov-sort="solutionMeans">솔루션 통제 수단'+covSortArrowHtml("solutionMeans")+'</th>';
 pocVendors.forEach(function(v){
 var logo=VENDOR_LOGO[v.name];
-var short=VENDOR_SHORT[v.name]||v.name;
 var icon=logo?'<img class="cov-vendor-logo" src="'+escapeAttr(logo)+'" alt="" loading="lazy">':'';
-html+='<th class="cov-vendor-th" title="'+escapeAttr(v.name)+'">'+icon+'<span class="cov-vendor-name">'+escapeAttr(short)+'</span></th>';
+html+='<th class="cov-vendor-th">'+icon+'<span class="cov-vendor-name">'+escapeAttr(v.name)+'</span></th>';
 });
 if(editMode)html+='<th></th>';
 html+='</tr></thead><tbody id="coverageBody"></tbody></table></div>';
@@ -760,7 +815,7 @@ html+='<td><button class="filter-chip cov-save-btn" data-row-id="'+escapeAttr(r.
 }else{
 html+='<td>'+escapeAttr(r.category)+'</td>';
 html+='<td>'+escapeAttr(r.subCategory)+'</td>';
-html+='<td>'+escapeAttr(r.example)+'</td>';
+html+='<td>'+exampleIconHtml(r.example)+escapeAttr(r.example)+'</td>';
 html+='<td>'+escapeAttr(r.description)+'</td>';
 html+='<td>'+escapeAttr(r.controlTarget)+'</td>';
 html+='<td>'+escapeAttr(r.controlMethod)+'</td>';
