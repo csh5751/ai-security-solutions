@@ -3,7 +3,7 @@ var statusLabels={
 "on-track":"정상 진행",
 "delayed":"지연",
 "completed":"완료",
-"pending":"Pending",
+"pending":"보류",
 "cancelled":"중단/취소"
 };
 
