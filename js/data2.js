@@ -3,7 +3,7 @@
    점수는 2026-09 공개 자료 재확인 기반. Palo Alto의 AISPM=1은 지정값. */
 
 var vendors=[
-{name:"Zenity",color:"#FF6B35",scores:{AISPM:4,AIDR:5,ShadowAI:3,RedTeaming:1,Ops:3}},
+{name:"Zenity",color:"#FF6B35",scores:{AISPM:4,AIDR:5,ShadowAI:0,RedTeaming:0,Ops:3}},
 {name:"Grip Security",color:"#FBBF24",scores:{AISPM:4,AIDR:1,ShadowAI:5,RedTeaming:1,Ops:3}},
 {name:"Straiker",color:"#F43F5E",scores:{AISPM:3,AIDR:5,ShadowAI:1,RedTeaming:5,Ops:2}},
 {name:"MS Agent 365",color:"#3B82F6",scores:{AISPM:4,AIDR:3,ShadowAI:4,RedTeaming:2,Ops:5}},
@@ -160,8 +160,8 @@ var vendorRationale={
 "Zenity":{
 AISPM:{type:["pos","pos","neg"],bullets:["<strong>Zenity Govern이 AISPM 전용 모듈로 제공 - Agent 설정·권한 리스크를 평가하고 secure-by-design 가드레일을 집행</strong>","<strong>M365/Salesforce/OpenAI ChatGPT/자체 프레임워크/엔드포인트 Agent까지 자동 발견 후 태세 평가</strong>","NHI 시크릿 로테이션·오프보딩 등 자격증명 수명 관리는 미제공"]},
 AIDR:{type:["pos","pos","pos"],bullets:["<strong>Zenity Defend(AI Detection & Response)로 런타임 탐지·차단, AI-DFIR 기반 Agent 결정 체인 추적이 핵심 차별점</strong>","<strong>Guardian Agents가 정책을 런타임에 지속 강제, MS Foundry Runtime Enforcement GA(2026.3)</strong>","Copilot/Agentforce 등 관리형 Agent부터 자체 개발 Agent까지 intent-aware 탐지 적용"]},
-ShadowAI:{type:["pos","neu","neg"],bullets:["<strong>Shadow Agent Discovery로 미승인 Agent를 발견하고 정책으로 완화(mitigate)까지 수행</strong>","Copilot Studio/Agentforce/Bedrock/Azure AI Foundry 범위의 citizen developer·shadow AI 거버넌스","직원 브라우저의 개인 ChatGPT 사용 등 Workforce AI 사용 통제는 Scope 밖"]},
-RedTeaming:{type:["neg","neg","neg"],bullets:["<strong>공개 자료상 능동적 공격 시뮬레이션·적대적 프로브 라이브러리·자동화 레드팀 워크플로우를 제공하지 않음</strong>","배포 전 Prompt Injection/Jailbreak 사전 검증 기능 부재","취약점 리포트 형태의 검증 결과물 없음"]},
+ShadowAI:{type:["neg","neg","neg"],bullets:["<strong>Workforce AI 사용 통제 미제공 - SaaS AI 서비스 사용, 로컬 LLM, 브라우저 기반 개인 AI 사용 탐지 없음</strong>","Shadow Agent Discovery는 Copilot Studio/Agentforce 등 관리형 플랫폼의 Agent 발견으로, Shadow AI 가시성 축으로 인정하지 않음","AI 자산 소유자 매핑·연결구조 기반 섀도 AI 인벤토리 부재"]},
+RedTeaming:{type:["neg","neg","neg"],bullets:["<strong>능동적 공격 시뮬레이션·적대적 프로브 라이브러리·자동화 레드팀 워크플로우를 일절 제공하지 않음</strong>","배포 전 Prompt Injection/Jailbreak 사전 검증 기능 없음","표준 매핑 취약점 리포트 등 검증 결과물 없음 - 해당 축 미보유"]},
 Ops:{type:["neu","pos","neu"],bullets:["SaaS 중심 배포로 도입은 빠르나 온프레미스/망분리 옵션은 제한적","<strong>Copilot Studio/Power Platform 등 MS 생태계 네이티브 통합으로 정책 관리 UI 성숙, Gartner 보고서에서 'Company to Beat'로 지목</strong>","국내 지원 조직·레퍼런스와 기술지원 SLA는 PoC에서 확인 필요"]}
 },
 "Grip Security":{
@@ -244,8 +244,8 @@ Ops:{type:["pos","pos","neu"],bullets:["<strong>경량 브라우저 확장만으
 };
 
 var vendorClusters=[
-{name:"AIDR / Runtime Defense Leaders",trait:"// 런타임에서 실제 탐지·차단이 확인된 그룹 - 인라인 차단 또는 액션 인터셉트 근거 보유",members:["Zenity","Straiker","Noma Security","Palo Alto Prisma AIRS","SentinelOne"],pattern:{AISPM:3,AIDR:5,ShadowAI:3,RedTeaming:3.6,Ops:3.2}},
-{name:"AISPM / Governance Leaders",trait:"// 권한·설정 태세를 지속 정량화하고 가드레일/권한 축소까지 집행하는 그룹",members:["Zenity","Grip Security","MS Agent 365","Noma Security","Onyx Security"],pattern:{AISPM:4,AIDR:3.6,ShadowAI:3.4,RedTeaming:1.6,Ops:3.2}},
+{name:"AIDR / Runtime Defense Leaders",trait:"// 런타임에서 실제 탐지·차단이 확인된 그룹 - 인라인 차단 또는 액션 인터셉트 근거 보유",members:["Zenity","Straiker","Noma Security","Palo Alto Prisma AIRS","SentinelOne"],pattern:{AISPM:3,AIDR:5,ShadowAI:2.4,RedTeaming:3.4,Ops:3.2}},
+{name:"AISPM / Governance Leaders",trait:"// 권한·설정 태세를 지속 정량화하고 가드레일/권한 축소까지 집행하는 그룹",members:["Zenity","Grip Security","MS Agent 365","Noma Security","Onyx Security"],pattern:{AISPM:4,AIDR:3.6,ShadowAI:2.8,RedTeaming:1.4,Ops:3.2}},
 {name:"AI Red Teaming Focus",trait:"// 공격 시나리오 반복 자동화 + 표준 매핑 취약점 리포트를 제품으로 제공",members:["Straiker","Akto","Palo Alto Prisma AIRS","SentinelOne","Noma Security"],pattern:{AISPM:2.8,AIDR:4.8,ShadowAI:3,RedTeaming:4.4,Ops:3.2}},
 {name:"Shadow AI Visibility Focus",trait:"// 전사 AI 사용/자산을 발견하고 차단·원격조치까지 매핑되는 그룹",members:["Grip Security","CrowdStrike AIDR","SentinelOne","Check Point Workforce AI Security","Airia"],pattern:{AISPM:2.8,AIDR:3.8,ShadowAI:4.8,RedTeaming:1.8,Ops:3.6}},
 {name:"Ops / Enterprise Readiness",trait:"// 기존 보안 운영 체계 편입, 국내 지원 조직과 표준 대응이 확인되는 그룹",members:["MS Agent 365","Palo Alto Prisma AIRS","CrowdStrike AIDR","SentinelOne","Check Point Workforce AI Security"],pattern:{AISPM:2.4,AIDR:4.4,ShadowAI:4.4,RedTeaming:2.8,Ops:4.2}},
