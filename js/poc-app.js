@@ -16,6 +16,7 @@ var editMode=false;
 var editToken=null;
 try{editToken=localStorage.getItem("pocEditToken")}catch(e){}
 
+var phaseDragVendor=null;
 var covCategoryFilter="all";
 var covSearchText="";
 var covSortState={field:null,dir:null};
@@ -311,6 +312,7 @@ html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:cen
 html+='</div>';
 
 html+=phaseLegendHtml();
+if(editMode)html+='<div class="phase-drag-hint">현재 단계 <span class="pdh-dot">●</span> 를 같은 행의 다른 칸으로 드래그하면 단계가 바뀌고 자동 저장됩니다.</div>';
 
 html+='<div class="progress-table-wrap"><table class="progress-matrix"><thead><tr>';
 html+='<th class="sortable-th" data-sort="name">Vendor'+sortArrowHtml("name")+'</th>';
@@ -545,7 +547,8 @@ pocPhases.forEach(function(p,idx){
 var cls="phase-cell";
 if(v.status==="completed"||idx<v.currentPhaseIndex)cls+=" done";
 else if(idx===v.currentPhaseIndex)cls+=" current";
-html+='<td class="'+cls+'" title="'+escapeAttr(p)+'">●</td>';
+if(editMode)cls+=" droppable";
+html+='<td class="'+cls+'" data-phase="'+idx+'" title="'+escapeAttr(p)+'">'+phaseDotHtml(v,idx)+'</td>';
 });
 if(editMode){
 html+=editableRow(v);
@@ -558,6 +561,123 @@ if(!rows.length)html='<tr><td colspan="'+(pocPhases.length+6)+'" class="report-e
 tbody.innerHTML=html;
 if(editMode)wireEditableRows();
 wireDragRows();
+if(editMode)wirePhaseDrag();
+}
+
+function phaseDotHtml(v,idx){
+if(idx===v.currentPhaseIndex){
+return '<span class="phase-dot'+(editMode?' movable':'')+'"'+(editMode?' draggable="true" title="드래그해서 현재 단계 변경"':'')+'>●</span>';
+}
+if(editMode&&v.currentPhaseIndex<0&&idx===0){
+return '<span class="phase-dot ghost movable" draggable="true" title="시작 전 - 드래그해서 현재 단계 지정">○</span>';
+}
+return '●';
+}
+
+function clearPhaseDropMarks(){
+var marked=document.querySelectorAll(".phase-cell.drop-hover");
+for(var i=0;i<marked.length;i++)marked[i].classList.remove("drop-hover");
+}
+
+function wirePhaseDrag(){
+var tbody=document.getElementById("progressBody");
+if(!tbody)return;
+var dots=tbody.querySelectorAll(".phase-dot.movable");
+for(var i=0;i<dots.length;i++){
+dots[i].addEventListener("dragstart",function(e){
+e.stopPropagation();
+var row=this.closest("tr");
+phaseDragVendor=row?row.getAttribute("data-vendor"):null;
+this.classList.add("dragging");
+if(e.dataTransfer){
+e.dataTransfer.effectAllowed="move";
+try{e.dataTransfer.setData("text/plain","phase:"+phaseDragVendor);}catch(err){}
+}
+});
+dots[i].addEventListener("dragend",function(e){
+e.stopPropagation();
+this.classList.remove("dragging");
+clearPhaseDropMarks();
+phaseDragVendor=null;
+});
+}
+var cells=tbody.querySelectorAll(".phase-cell.droppable");
+for(var c=0;c<cells.length;c++){
+cells[c].addEventListener("dragover",function(e){
+if(!phaseDragVendor)return;
+var row=this.closest("tr");
+if(!row||row.getAttribute("data-vendor")!==phaseDragVendor)return;
+e.preventDefault();
+e.stopPropagation();
+if(e.dataTransfer)e.dataTransfer.dropEffect="move";
+clearPhaseDropMarks();
+this.classList.add("drop-hover");
+});
+cells[c].addEventListener("dragleave",function(){
+this.classList.remove("drop-hover");
+});
+cells[c].addEventListener("drop",function(e){
+if(!phaseDragVendor)return;
+var row=this.closest("tr");
+if(!row||row.getAttribute("data-vendor")!==phaseDragVendor)return;
+e.preventDefault();
+e.stopPropagation();
+var name=phaseDragVendor;
+var idx=parseInt(this.getAttribute("data-phase"),10);
+clearPhaseDropMarks();
+phaseDragVendor=null;
+movePhase(name,idx);
+});
+}
+}
+
+function vendorByName(name){
+for(var i=0;i<pocVendors.length;i++){if(pocVendors[i].name===name)return pocVendors[i];}
+return null;
+}
+
+function movePhase(vendorName,newIdx){
+var v=vendorByName(vendorName);
+if(!v||isNaN(newIdx))return;
+if(v.currentPhaseIndex===newIdx)return;
+var prevIdx=v.currentPhaseIndex;
+v.currentPhaseIndex=newIdx;
+renderProgressBody();
+savePhaseChange(vendorName,newIdx,prevIdx);
+}
+
+async function savePhaseChange(vendorName,newIdx,prevIdx){
+var statusEl=document.getElementById("reorderStatus");
+if(statusEl)statusEl.textContent="단계 저장 중...";
+try{
+var res=await fetch("/api/data",{
+method:"PUT",
+headers:{
+"Content-Type":"application/json",
+"Authorization":"Bearer "+editToken
+},
+body:JSON.stringify({vendorName:vendorName,currentPhaseIndex:newIdx})
+});
+if(res.status===401){
+editToken=null;
+editMode=false;
+try{localStorage.removeItem("pocEditToken")}catch(e){}
+alert("편집 세션이 만료되었습니다. 비밀번호를 다시 입력해주세요.");
+renderProgress();
+return;
+}
+if(!res.ok)throw new Error("save failed");
+var updated=await res.json();
+applyServerData(updated);
+dataSource="live";
+if(statusEl)statusEl.textContent=vendorName+" → "+phaseLabelOf(newIdx)+" 저장됨 ✓";
+renderProgressBody();
+}catch(e){
+var v=vendorByName(vendorName);
+if(v)v.currentPhaseIndex=prevIdx;
+renderProgressBody();
+if(statusEl)statusEl.textContent="단계 저장 실패 (되돌림)";
+}
 }
 
 function wireDragRows(){
@@ -580,6 +700,7 @@ for(var j=0;j<all.length;j++)all[j].classList.remove("drag-over-top","drag-over-
 dragSrc=null;
 });
 rows[i].addEventListener("dragover",function(e){
+if(phaseDragVendor)return;
 e.preventDefault();
 if(e.dataTransfer)e.dataTransfer.dropEffect="move";
 if(!dragSrc||this===dragSrc)return;
@@ -593,6 +714,7 @@ rows[i].addEventListener("dragleave",function(){
 this.classList.remove("drag-over-top","drag-over-bottom");
 });
 rows[i].addEventListener("drop",function(e){
+if(phaseDragVendor)return;
 e.preventDefault();
 this.classList.remove("drag-over-top","drag-over-bottom");
 if(!dragSrc||this===dragSrc)return;
