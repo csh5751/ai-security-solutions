@@ -829,17 +829,17 @@ var covCategories=[];
 covRows.forEach(function(r){if(r.category&&covCategories.indexOf(r.category)===-1)covCategories.push(r.category);});
 
 var html=sampleBanner();
-html+='<div class="hero"><div><h1>통제 <span class="accent">매트릭스</span></h1><p>// 통제 항목 × 벤더 Coverage</p></div><span class="badge">'+covRows.length+' ITEMS</span></div>';
+/* Coverage is a dense working screen: keep its heading and controls in a compact,
+   named structure so future layout changes stay isolated from the shared hero. */
+html+='<div class="hero coverage-hero"><div class="coverage-hero-copy"><h1>통제 <span class="accent">매트릭스</span></h1><p>// 통제 항목 × 벤더 Coverage</p></div><span class="badge">'+covRows.length+' ITEMS</span></div>';
 
-html+='<div class="filter-chips">';
+html+='<div class="filter-chips coverage-filter-bar">';
 html+='<span class="filter-chip'+(covCategoryFilter==="all"?' active':'')+'" data-cov-filter="all">전체</span>';
 covCategories.forEach(function(c){
 html+='<span class="filter-chip'+(c===covCategoryFilter?' active':'')+'" data-cov-filter="'+escapeAttr(c)+'">'+c+'</span>';
 });
-html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;"><span id="covActionStatus" class="edit-save-status"></span><span id="editLoginBox" style="display:none;gap:8px;align-items:center;"></span>'+(editMode?'<button class="filter-chip" id="addCovRowBtn">+ 항목 추가</button>':'')+'<button class="filter-chip" id="covMaxBtn" title="그리드만 화면 전체로 확대 (ESC로 복귀)">⤢ 전체화면</button><button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
+html+='<span class="coverage-actions"><input type="text" id="covSearchInput" class="edit-field coverage-search" placeholder="전체 컬럼 검색" aria-label="통제 매트릭스 전체 컬럼 검색" value="'+escapeAttr(covSearchText)+'"><span id="covActionStatus" class="edit-save-status"></span><span id="editLoginBox" class="coverage-login-box"></span>'+(editMode?'<button class="filter-chip" id="addCovRowBtn">+ 항목 추가</button>':'')+'<button class="filter-chip" id="covMaxBtn" title="그리드만 화면 전체로 확대 (ESC로 복귀)">⤢ 전체화면</button><button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
 html+='</div>';
-
-html+='<div style="margin-bottom:14px;"><input type="text" id="covSearchInput" class="edit-field" style="width:280px;" placeholder="검색어 입력 (텍스트 컬럼 전체)" value="'+escapeAttr(covSearchText)+'"></div>';
 
 html+='<div class="coverage-table-wrap"><table class="progress-matrix coverage-matrix"><thead><tr>';
 html+='<th></th>';
