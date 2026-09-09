@@ -251,6 +251,10 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 .topnav a.active{color:var(--accent-text);background:var(--surface-2)}
 .theme-toggle{margin-left:auto;background:var(--surface-2);border:1px solid var(--border-strong);color:var(--text-muted);padding:8px 14px;border-radius:6px;font-size:13.5px;font-weight:700;font-family:monospace;cursor:pointer;letter-spacing:.5px;text-transform:uppercase;display:inline-flex;align-items:center;gap:6px}
 .theme-toggle:hover{border-color:var(--accent);color:var(--text-primary)}
+/* 메뉴 우측 끝에 홀로 떠 있어 박스 무게가 과했다. 평소엔 눌러 두고
+   호버 시에만 드러나게 한다 */
+.topnav .theme-toggle{background:transparent;border-color:var(--border);padding:7px 12px;font-size:12.5px}
+.topnav .theme-toggle:hover{background:var(--surface-2);border-color:var(--accent)}
 
 /* ---- Sample-data banner ---- */
 .sample-banner{background:rgba(251,191,36,.08);border:1px solid rgba(251,191,36,.35);color:var(--banner-text);padding:12px 17px;border-radius:7px;font-family:monospace;font-size:14.5px;margin-bottom:24px;font-weight:700;letter-spacing:.3px;line-height:1.6}
@@ -514,7 +518,6 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
    - 지속 애니메이션은 prefers-reduced-motion으로 감싼다.
    ============================================================ */
 :root{
---nav-bg:rgba(15,20,25,.86);
 --glow-1:rgba(255,107,53,.10);
 --glow-2:rgba(34,211,238,.07);
 --elev-1:0 2px 8px var(--shadow);
@@ -522,7 +525,6 @@ li.neu:before{content:'.';position:absolute;left:0;color:var(--text-faint);font-
 --ease-out:cubic-bezier(.2,.7,.3,1);
 }
 :root[data-theme="light"]{
---nav-bg:rgba(248,250,252,.88);
 --glow-1:rgba(255,107,53,.09);
 --glow-2:rgba(14,165,233,.07);
 }
@@ -549,20 +551,22 @@ body:not([data-page="admin"]) .topnav{
 position:sticky;top:0;z-index:60;background:var(--bg);
 transition:padding .22s var(--ease-out),box-shadow .22s,border-color .22s
 }
+/* 반투명 배경은 라이트 테마에서 페이지 배경(#F2F4F8)보다 밝아 네모난 띠로
+   보였다. 배경색을 페이지와 완전히 동일하게 두고 blur는 쓰지 않는다 */
 body:not([data-page="admin"]) .topnav.mo-stuck{
 padding:12px 0;border-bottom-color:var(--border-strong);
 box-shadow:0 10px 30px -18px var(--shadow-strong)
 }
-@supports (backdrop-filter:blur(10px)){
-body:not([data-page="admin"]) .topnav{background:var(--nav-bg);backdrop-filter:blur(14px) saturate(140%)}
-}
+
 .topnav a{position:relative;transition:color .16s}
 .topnav a:after{
 content:'';position:absolute;left:8px;right:8px;bottom:2px;height:2px;border-radius:2px;
 background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .22s var(--ease-out)
 }
 .topnav a:hover:after{transform:scaleX(1)}
-.topnav a.active:after{transform:scaleX(1);background:linear-gradient(90deg,var(--accent),var(--accent-soft))}
+/* 활성 항목은 이미 배경 박스 + 액센트 색으로 표시된다.
+   밑줄까지 넣으면 강조가 겹쳐 어수선해지므로 호버에만 남긴다 */
+.topnav a.active:after{display:none}
 
 /* ---- 히어로 ---- */
 body:not([data-page="admin"]) .hero{position:relative;padding:36px 0 42px;border-bottom:0}
@@ -781,3 +785,17 @@ font-size:10px;padding:2px 6px;border-radius:4px;
 background:var(--surface-2);border:1px solid var(--border);color:var(--text-faint)
 }
 #covMaxBtn{white-space:nowrap}
+
+/* ---- 스크롤바: 전역 적용 (윈도우는 메인 스크롤바가 항상 보여 더 두드러진다) ---- */
+/* color-scheme을 선언하면 OS 기본 스크롤바/폼 컨트롤이 테마에 맞게 렌더된다 */
+:root{color-scheme:dark}
+:root[data-theme="light"]{color-scheme:light}
+html{scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) transparent}
+::-webkit-scrollbar{width:12px;height:12px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{
+background:var(--scroll-thumb);border:3px solid transparent;
+background-clip:padding-box;border-radius:10px
+}
+::-webkit-scrollbar-thumb:hover{background:var(--scroll-thumb-hover);background-clip:padding-box}
+::-webkit-scrollbar-corner{background:transparent}

@@ -905,7 +905,13 @@ if(!wrap)return;
 if(covMaximized){wrap.style.maxHeight="";return;}
 var absTop=wrap.getBoundingClientRect().top+(window.scrollY||0);
 var footer=document.getElementById("admin-entry");
-var reserve=22+(footer?footer.offsetHeight:0);
+/* offsetHeight는 margin을 포함하지 않는다. 하단 링크의 margin-top까지
+   더해야 페이지 스크롤이 몇 px 남는 것을 막을 수 있다 */
+var reserve=18;
+if(footer){
+var cs=window.getComputedStyle?window.getComputedStyle(footer):null;
+reserve+=footer.offsetHeight+(cs?(parseFloat(cs.marginTop)||0):0);
+}
 var h=Math.max(300,Math.round(window.innerHeight-absTop-reserve));
 wrap.style.maxHeight=h+"px";
 }
