@@ -71,6 +71,20 @@ document.dispatchEvent(new CustomEvent("theme-change"));
 });
 }
 
+/* 모든 일반 페이지 맨 하단에 작은 관리자 진입 링크를 붙인다.
+   .container 안에 넣어 본문과 가로 정렬을 맞춘다 */
+function navRenderFooter(){
+var current=document.body.getAttribute("data-page");
+if(current==="admin")return;
+if(document.getElementById("admin-entry"))return;
+var host=document.querySelector(".container")||document.body;
+var f=document.createElement("div");
+f.id="admin-entry";
+f.className="admin-entry";
+f.innerHTML='<a href="admin.html" title="관리자 페이지로 이동">\u2699 관리자</a>';
+host.appendChild(f);
+}
+
 /* 비활성화된 메뉴로 직접 들어온 경우 안내 후 홈으로 보냄.
    정적 사이트이므로 접근제어가 아니라 '정리' 수단이다 - JS/API를 직접 보면 우회 가능 */
 function navEnforce(pages,cfg){
@@ -98,6 +112,7 @@ setTimeout(function(){location.replace("index.html");},3000);
 (function(){
 var cached=navReadCache();
 navRender(cached&&cached.pages,cached&&cached.navConfig);
+navRenderFooter();
 fetch("/api/nav").then(function(r){return r.ok?r.json():null;}).then(function(d){
 if(!d||!d.navConfig)return;
 navWriteCache({navConfig:d.navConfig,pages:d.pages});
