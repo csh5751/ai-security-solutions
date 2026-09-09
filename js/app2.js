@@ -44,6 +44,25 @@ if(mv.rationale)vendorRationale[mv.name]=mv.rationale;
 });
 }
 
+/* 관리자 페이지에서 저장한 map2Overrides를 data2.js 기본 점수 위에 덮어쓴다.
+   덮어쓴 뒤 threatScores를 다시 계산해야 히트맵이 함께 갱신된다 */
+function applyMap2Overrides(doc){
+if(!doc||!doc.map2Overrides||typeof doc.map2Overrides!=="object")return;
+vendors.forEach(function(v){
+var ov=doc.map2Overrides[v.name];
+if(!ov||typeof ov!=="object")return;
+var touched=false;
+layers.forEach(function(l){
+if(typeof ov[l]==="number"){v.scores[l]=ov[l];touched=true;}
+});
+if(!touched)return;
+v.threatScores=v.threatScores||{};
+layers.forEach(function(layer){
+threatDomains[layer].forEach(function(d){v.threatScores[d]=v.scores[layer];});
+});
+});
+}
+
 function buildLayout(){
 var domainCount=0;
 layers.forEach(function(l){domainCount+=threatDomains[l].length;});
@@ -479,7 +498,7 @@ var chartScript=document.createElement("script");
 chartScript.src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js";
 chartScript.onload=function(){
 fetch("/api/data").then(function(r){return r.ok?r.json():null;})
-.then(function(doc){if(doc)mergeMapVendors(doc);})
+.then(function(doc){if(doc){mergeMapVendors(doc);applyMap2Overrides(doc);}})
 .catch(function(){})
 .then(function(){buildLayout();renderAll();});
 };

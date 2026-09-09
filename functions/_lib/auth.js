@@ -33,8 +33,9 @@ async function hmacKey(secret) {
 
 var TOKEN_TTL_MS = 12 * 60 * 60 * 1000;
 
-async function issueToken(secret) {
+async function issueToken(secret, role) {
   var payload = { exp: Date.now() + TOKEN_TTL_MS };
+  if (role) payload.role = String(role);
   var payloadB64 = base64urlEncode(utf8Encode(JSON.stringify(payload)));
   var key = await hmacKey(secret);
   var sig = await crypto.subtle.sign("HMAC", key, utf8Encode(payloadB64));
@@ -42,7 +43,7 @@ async function issueToken(secret) {
   return payloadB64 + "." + sigB64;
 }
 
-async function verifyToken(token, secret) {
+async function verifyToken(token, secret, requiredRole) {
   if (!token || token.indexOf(".") === -1) return false;
   var parts = token.split(".");
   if (parts.length !== 2) return false;
@@ -63,7 +64,9 @@ async function verifyToken(token, secret) {
     return false;
   }
   if (!payload || typeof payload.exp !== "number") return false;
-  return Date.now() < payload.exp;
+  if (Date.now() >= payload.exp) return false;
+  if (requiredRole && payload.role !== requiredRole) return false;
+  return true;
 }
 
 export { issueToken, verifyToken };
