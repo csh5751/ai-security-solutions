@@ -13,7 +13,9 @@ var REVEAL_SEL=[
 ".insight-card",".best-card",".cluster-card",".similar-card",".ext-cap-card",
 ".layer-cluster-row",".lg-item",".matrix-vendor-header",
 ".report-card",".single-vendor",".timeline-row",".milestone-row",
-".progress-matrix tbody tr"
+/* 통제 매트릭스는 제외한다. tr에 transform이 걸리면 containing block이
+   새로 생겨 좌측 고정 열의 position:sticky가 깨진다 */
+".progress-matrix:not(.coverage-matrix) tbody tr"
 ].join(",");
 
 var COUNT_SEL=".dash-stat-value,.num-big,.score-big,.sim-percent,.total-cell,.total-pill";

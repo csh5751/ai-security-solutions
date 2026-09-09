@@ -706,3 +706,78 @@ body:not([data-page="admin"]) .hero h1{font-size:28px}
 .sec-header .sub{margin-left:0;flex-basis:100%}
 .update-log-item{gap:6px}
 }
+
+/* ============================================================
+   통제 매트릭스: 화면 활용 / 스크롤바 톤 다운 / 전체화면
+   ============================================================ */
+:root{
+--scroll-thumb:rgba(138,148,166,.32);
+--scroll-thumb-hover:rgba(184,194,209,.55);
+}
+:root[data-theme="light"]{
+--scroll-thumb:rgba(100,112,133,.28);
+--scroll-thumb-hover:rgba(72,84,104,.48);
+}
+
+/* 스크롤바를 얇고 조용하게. 트랙은 없애고 썸만 은은하게 남긴다 */
+.coverage-table-wrap,.progress-table-wrap,.heatmap-wrap,.explorer-wrap,.matrix-grid{
+scrollbar-width:thin;scrollbar-color:var(--scroll-thumb) transparent
+}
+.coverage-table-wrap::-webkit-scrollbar,
+.progress-table-wrap::-webkit-scrollbar,
+.heatmap-wrap::-webkit-scrollbar,
+.explorer-wrap::-webkit-scrollbar{width:12px;height:12px}
+.coverage-table-wrap::-webkit-scrollbar-track,
+.progress-table-wrap::-webkit-scrollbar-track,
+.heatmap-wrap::-webkit-scrollbar-track,
+.explorer-wrap::-webkit-scrollbar-track{background:transparent}
+.coverage-table-wrap::-webkit-scrollbar-thumb,
+.progress-table-wrap::-webkit-scrollbar-thumb,
+.heatmap-wrap::-webkit-scrollbar-thumb,
+.explorer-wrap::-webkit-scrollbar-thumb{
+background:var(--scroll-thumb);border:3px solid transparent;background-clip:padding-box;border-radius:10px
+}
+.coverage-table-wrap::-webkit-scrollbar-thumb:hover,
+.progress-table-wrap::-webkit-scrollbar-thumb:hover,
+.heatmap-wrap::-webkit-scrollbar-thumb:hover,
+.explorer-wrap::-webkit-scrollbar-thumb:hover{
+background:var(--scroll-thumb-hover);background-clip:padding-box
+}
+.coverage-table-wrap::-webkit-scrollbar-corner,
+.progress-table-wrap::-webkit-scrollbar-corner{background:transparent}
+
+/* 통제 매트릭스 페이지는 화면을 최대한 넓게 쓴다 */
+body[data-page="coverage"]{padding:20px 16px}
+body[data-page="coverage"]>.container{max-width:none}
+body[data-page="coverage"] .hero{padding:20px 0 18px}
+body[data-page="coverage"] .hero h1{font-size:32px}
+body[data-page="coverage"] .filter-chips{margin-bottom:10px}
+body[data-page="coverage"] .admin-entry{margin-top:14px;padding:10px 0 2px}
+/* 높이는 js/poc-app.js의 fitCoverageHeight()가 화면 하단에 맞춰 계산한다.
+   아래 값은 스크립트가 돌기 전 첫 페인트용 폴백 */
+body[data-page="coverage"] .coverage-table-wrap{max-height:78vh}
+
+/* 그리드만 화면 전체로 */
+.coverage-table-wrap.cov-maximized{
+position:fixed;inset:0;z-index:300;width:100vw;height:100vh;
+max-height:none!important;background:var(--bg);
+padding:12px 14px;border-radius:0
+}
+body.cov-max-open{overflow:hidden}
+body.cov-max-open #scroll-progress{display:none}
+#covMaxExit{
+position:fixed;top:14px;right:16px;z-index:400;
+display:inline-flex;align-items:center;gap:8px;cursor:pointer;
+padding:9px 15px;border-radius:20px;
+font-family:monospace;font-size:12.5px;font-weight:800;
+background:var(--surface);color:var(--text-primary);
+border:1px solid var(--border-strong);
+box-shadow:0 12px 30px -12px var(--shadow-strong);
+transition:border-color .16s,color .16s
+}
+#covMaxExit:hover{border-color:var(--accent);color:var(--accent-text)}
+#covMaxExit .cme-key{
+font-size:10px;padding:2px 6px;border-radius:4px;
+background:var(--surface-2);border:1px solid var(--border);color:var(--text-faint)
+}
+#covMaxBtn{white-space:nowrap}

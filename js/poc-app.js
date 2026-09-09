@@ -836,7 +836,7 @@ html+='<span class="filter-chip'+(covCategoryFilter==="all"?' active':'')+'" dat
 covCategories.forEach(function(c){
 html+='<span class="filter-chip'+(c===covCategoryFilter?' active':'')+'" data-cov-filter="'+escapeAttr(c)+'">'+c+'</span>';
 });
-html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;"><span id="covActionStatus" class="edit-save-status"></span><span id="editLoginBox" style="display:none;gap:8px;align-items:center;"></span>'+(editMode?'<button class="filter-chip" id="addCovRowBtn">+ 항목 추가</button>':'')+'<button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
+html+='<span style="margin-left:auto;display:inline-flex;gap:8px;align-items:center;"><span id="covActionStatus" class="edit-save-status"></span><span id="editLoginBox" style="display:none;gap:8px;align-items:center;"></span>'+(editMode?'<button class="filter-chip" id="addCovRowBtn">+ 항목 추가</button>':'')+'<button class="filter-chip" id="covMaxBtn" title="그리드만 화면 전체로 확대 (ESC로 복귀)">⤢ 전체화면</button><button class="filter-chip" id="editToggleBtn">'+(editMode?"편집 모드 끄기":"편집 모드 켜기")+'</button></span>';
 html+='</div>';
 
 html+='<div style="margin-bottom:14px;"><input type="text" id="covSearchInput" class="edit-field" style="width:280px;" placeholder="검색어 입력 (텍스트 컬럼 전체)" value="'+escapeAttr(covSearchText)+'"></div>';
@@ -887,8 +887,83 @@ renderCoverageBody();
 document.getElementById("editToggleBtn").onclick=onEditToggleClick;
 var addCovBtn=document.getElementById("addCovRowBtn");
 if(addCovBtn)addCovBtn.onclick=addCovRow;
+
+var covMaxBtn=document.getElementById("covMaxBtn");
+if(covMaxBtn)covMaxBtn.onclick=toggleCovMaximize;
+applyCovMaximizeState();
 }
 
+/* ---- 통제 매트릭스: 화면 활용 / 전체화면 토글 ---- */
+var covMaximized=false;
+var covFitWired=false;
+
+/* 그리드 하단이 화면 하단에 정확히 닿게 높이를 계산한다.
+   페이지 스크롤과 내부 스크롤이 동시에 생기는 것을 막기 위함 */
+function fitCoverageHeight(){
+var wrap=document.querySelector(".coverage-table-wrap");
+if(!wrap)return;
+if(covMaximized){wrap.style.maxHeight="";return;}
+var absTop=wrap.getBoundingClientRect().top+(window.scrollY||0);
+var footer=document.getElementById("admin-entry");
+var reserve=22+(footer?footer.offsetHeight:0);
+var h=Math.max(300,Math.round(window.innerHeight-absTop-reserve));
+wrap.style.maxHeight=h+"px";
+}
+
+function updateCovMaxBtn(){
+var b=document.getElementById("covMaxBtn");
+if(b)b.textContent=covMaximized?"\u2921 \ubcf5\uadc0":"\u2922 \uc804\uccb4\ud654\uba74";
+}
+
+function covExitButton(show){
+var ex=document.getElementById("covMaxExit");
+if(show){
+if(ex)return;
+ex=document.createElement("button");
+ex.id="covMaxExit";
+ex.type="button";
+ex.innerHTML="\u2921 \ubcf5\uadc0 <span class=\"cme-key\">ESC</span>";
+ex.onclick=function(){if(covMaximized)toggleCovMaximize();};
+document.body.appendChild(ex);
+}else if(ex&&ex.parentNode){
+ex.parentNode.removeChild(ex);
+}
+}
+
+/* 정렬/필터는 renderCoverage 전체를 다시 그리므로 상태를 다시 입혀야 한다 */
+function applyCovMaximizeState(){
+var wrap=document.querySelector(".coverage-table-wrap");
+if(!wrap)return;
+if(covMaximized){
+wrap.classList.add("cov-maximized");
+document.body.classList.add("cov-max-open");
+wrap.style.maxHeight="";
+covExitButton(true);
+}else{
+wrap.classList.remove("cov-maximized");
+document.body.classList.remove("cov-max-open");
+covExitButton(false);
+fitCoverageHeight();
+}
+updateCovMaxBtn();
+
+if(!covFitWired){
+covFitWired=true;
+window.addEventListener("resize",function(){
+if(!covMaximized)fitCoverageHeight();
+});
+document.addEventListener("keydown",function(e){
+if(e.key==="Escape"&&covMaximized)toggleCovMaximize();
+});
+}
+}
+
+function toggleCovMaximize(){
+covMaximized=!covMaximized;
+applyCovMaximizeState();
+var wrap=document.querySelector(".coverage-table-wrap");
+if(wrap&&covMaximized)wrap.scrollTop=0;
+}
 function computeCovGroups(rows){
 var groupParity=new Array(rows.length).fill(0);
 var groupStart=new Array(rows.length).fill(false);
