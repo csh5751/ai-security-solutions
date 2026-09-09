@@ -11,15 +11,17 @@ covFilter:"", covOpenId:null
 /* data2.js가 정의한 Vendor Map II 기준 점수(기본값 표시용) */
 var MAP2_BASE = (typeof vendors !== "undefined" && Array.isArray(vendors)) ? vendors : [];
 
+/* label/hint의 {nav:페이지} 는 메뉴 관리에서 지정한 실제 메뉴명으로 치환된다.
+   메뉴명을 바꾸면 좌측 탭과 안내 문구가 함께 따라오도록 하기 위함 */
 var TABS = [
-{key:"navConfig",     label:"메뉴 관리",        hint:"상단 메뉴의 표시 여부·이름·순서를 정합니다. Home은 잠겨 있어 항상 표시됩니다. 비활성화한 메뉴는 목록에서 사라지고 URL로 직접 들어와도 홈으로 보냅니다 — 정적 사이트이므로 접근제어가 아니라 정리 수단입니다."},
-{key:"pocMeta",       label:"PoC 기본정보",     hint:"대시보드 상단과 D-Day 계산에 쓰이는 값입니다. 목표일(targetDate)을 바꾸면 대시보드의 남은 일수가 함께 바뀝니다."},
-{key:"pocPhases",     label:"PoC 단계",         hint:"진행현황 매트릭스의 열이 됩니다. 단계를 줄이면 범위를 벗어난 벤더의 현재 단계가 마지막 단계로 자동 보정됩니다."},
-{key:"pocVendors",    label:"PoC 벤더",         hint:"진행현황·대시보드에 쓰이는 벤더별 진행 상태입니다. 업체명은 중복될 수 없습니다."},
-{key:"recentUpdates", label:"최근 업데이트",    hint:"대시보드의 변경 이력입니다. 관리자 저장 시 자동으로 기록이 추가되며 최근 20건만 보관됩니다."},
-{key:"mapVendors",    label:"Vendor Map 추가벤더", hint:"원본 Vendor Map(js/data.js) 위에 얹히는 추가 벤더입니다. 5개 축(Model/Agent/Platform/Identity/ShadowAI)마다 근거를 최소 1줄 입력해야 저장됩니다."},
-{key:"map2Overrides", label:"Vendor Map II 점수", hint:"Vendor Map II의 기준 점수를 덮어씁니다. 비워두면 js/data2.js의 기본값을 그대로 사용합니다."},
-{key:"covRows",       label:"통제 매트릭스",    hint:"통제 커버리지 매트릭스의 행입니다. 검색으로 행을 찾아 편집을 누르면 전체 항목과 벤더별 커버리지를 고칠 수 있습니다."},
+{key:"navConfig",     label:"메뉴 관리",        hint:"상단 메뉴의 표시 여부·이름·순서를 정합니다. {nav:dashboard}은 잠겨 있어 항상 표시됩니다. 비활성화한 메뉴는 목록에서 사라지고 URL로 직접 들어와도 홈으로 보냅니다 — 정적 사이트이므로 접근제어가 아니라 정리 수단입니다."},
+{key:"pocMeta",       label:"PoC 기본정보",     hint:"{nav:dashboard} 상단과 D-Day 계산에 쓰이는 값입니다. 목표일(targetDate)을 바꾸면 남은 일수가 함께 바뀝니다."},
+{key:"pocPhases",     label:"PoC 단계",         hint:"{nav:progress} 매트릭스의 열이 됩니다. 단계를 줄이면 범위를 벗어난 벤더의 현재 단계가 마지막 단계로 자동 보정됩니다."},
+{key:"pocVendors",    label:"PoC 벤더",         hint:"{nav:progress}·{nav:dashboard}에 쓰이는 벤더별 진행 상태입니다. 업체명은 중복될 수 없습니다."},
+{key:"recentUpdates", label:"최근 업데이트",    hint:"{nav:dashboard}의 변경 이력입니다. 관리자 저장 시 자동으로 기록이 추가되며 최근 20건만 보관됩니다."},
+{key:"mapVendors",    label:"{nav:map} 추가벤더", hint:"{nav:map} 메뉴(js/data.js) 위에 얹히는 추가 벤더입니다. 5개 축(Model/Agent/Platform/Identity/ShadowAI)마다 근거를 최소 1줄 입력해야 저장됩니다."},
+{key:"map2Overrides", label:"{nav:map2} 점수",  hint:"{nav:map2} 메뉴의 기준 점수를 덮어씁니다. 비워두면 js/data2.js의 기본값을 그대로 사용합니다."},
+{key:"covRows",       label:"{nav:coverage}",   hint:"{nav:coverage} 메뉴의 행입니다. 검색으로 행을 찾아 편집을 누르면 전체 항목과 벤더별 커버리지를 고칠 수 있습니다."},
 {sep:true},
 {key:"__snapshots",   label:"스냅샷 복원",      hint:"저장·복원 직전 문서를 최근 10개까지 자동 보관합니다. 복원하면 현재 상태도 스냅샷으로 남으므로 되돌리기가 가능합니다."}
 ];
@@ -28,6 +30,23 @@ function byId(id){return document.getElementById(id);}
 function esc(s){return String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");}
 function clone(v){return JSON.parse(JSON.stringify(v===undefined?null:v));}
 function tabDef(k){for(var i=0;i<TABS.length;i++){if(TABS[i].key===k)return TABS[i];}return null;}
+
+/* 메뉴명 조회 - 저장 전 편집 중인 draft를 우선해서 입력하는 즉시 반영된다 */
+function navLabelOf(page){
+var cfg=("navConfig" in ADM.draft)?ADM.draft.navConfig:(ADM.doc&&ADM.doc.navConfig);
+if(cfg&&cfg[page]&&cfg[page].label)return cfg[page].label;
+var np=ADM.meta&&ADM.meta.navPages;
+if(np){for(var i=0;i<np.length;i++){if(np[i].page===page)return np[i].label;}}
+return null;
+}
+/* escSub: 결과를 그대로 HTML에 넣는 경우(안내 문구) 치환값만 이스케이프한다 */
+function fillNav(text,escSub){
+return String(text==null?"":text).replace(/\{nav:([a-zA-Z0-9_]+)\}/g,function(m,pg){
+var v=navLabelOf(pg)||pg;
+return escSub?esc(v):v;
+});
+}
+function tabLabel(t){return fillNav(t.label,false);}
 
 /* ---------- 인증 ---------- */
 function loadToken(){try{ADM.token=localStorage.getItem("adminToken");}catch(e){ADM.token=null;}}
@@ -148,7 +167,7 @@ TABS.forEach(function(t){
 if(t.sep){html+='<div class="admin-tab-sep"></div>';return;}
 var c=(t.key==="__snapshots")?ADM.snaps.length:countOf(t.key);
 html+='<div class="admin-tab'+(ADM.tab===t.key?' active':'')+(ADM.dirty[t.key]?' dirty':'')+'" data-tab="'+t.key+'">'+
-esc(t.label)+(c===null?"":'<span class="at-count">'+c+'</span>')+'</div>';
+esc(tabLabel(t))+(c===null?"":'<span class="at-count">'+c+'</span>')+'</div>';
 });
 byId("admTabs").innerHTML=html;
 var tabs=byId("admTabs").querySelectorAll(".admin-tab");
@@ -173,9 +192,9 @@ var pane=byId("admPane");
 var saveBtn=(ADM.tab==="__snapshots")?"":
 '<button class="admin-btn" data-act="save">저장</button>'+
 '<button class="admin-btn ghost" data-act="revert">되돌리기</button>';
-var html='<div class="admin-pane-head"><h3>'+esc(t.label)+'</h3><div class="aph-actions">'+
+var html='<div class="admin-pane-head"><h3>'+esc(tabLabel(t))+'</h3><div class="aph-actions">'+
 '<span class="admin-status '+(ADM.statusKind||"")+'" id="admStatus">'+esc(ADM.status||"")+'</span>'+saveBtn+'</div></div>';
-html+='<div class="admin-hint">'+t.hint+'</div>';
+html+='<div class="admin-hint">'+fillNav(t.hint,true)+'</div>';
 if(ADM.errors&&ADM.errors.length){
 html+='<div class="admin-errlist"><strong>저장하지 않았습니다 — 아래 항목을 고쳐주세요</strong><ul>';
 ADM.errors.forEach(function(e){html+='<li>· '+esc(e)+'</li>';});
@@ -526,8 +545,8 @@ html+='<button class="admin-btn ghost tiny" data-act="add-bullet" data-idx="'+i+
 });
 html+='</div>';
 });
-if(!d.length)html+='<div class="admin-empty">추가 벤더가 없습니다. 원본 Vendor Map의 11개 벤더는 js/data.js에 정적으로 있어 여기서 편집하지 않습니다.</div>';
-html+='<button class="admin-btn ghost" data-act="add-mapvendor" style="margin-top:6px">+ Vendor Map 벤더 추가</button>';
+if(!d.length)html+='<div class="admin-empty">추가 벤더가 없습니다. '+esc(navLabelOf("map")||"Vendor Map")+' 메뉴의 기본 11개 벤더는 js/data.js에 정적으로 있어 여기서 편집하지 않습니다.</div>';
+html+='<button class="admin-btn ghost" data-act="add-mapvendor" style="margin-top:6px">+ 벤더 추가</button>';
 return html;
 }
 
